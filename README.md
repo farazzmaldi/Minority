@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. The app initializes its local database and displays either its initialized state or an initialization error. Planning models, persistence operations, the `planning_v1` migration, and additional checks are available; no planning workflow is connected to the interface yet. Product acceptance remains separate from this implementation checkpoint.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. TASK-D-001 adds local Plan creation and listing plus a manual English/Bahasa Indonesia interface-language setting; these changes are still local and uncommitted. Activity, schedule, and other planning workflows remain unimplemented. Product acceptance remains separate from this implementation checkpoint.
 
 ## Development guide
 
@@ -14,7 +14,7 @@ Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRD
 - [Progress, verification evidence, and commits](docs/PROGRESS.md)
 - [Coding-agent rules and completion checks](AGENTS.md)
 
-The current priority is G0: written project governance. Link each task to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
+The current task is TASK-D-001: create and view Plans, with the user-selected plan-list, add-sheet, and standard Settings-window navigation. Link work to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
 
 Development interaction uses Codex in the ChatGPT Desktop graphical interface against the existing local Minority repository (DEC-017, CONFIRMED). The user is not required to operate Codex CLI. Commands documented below are available for Codex to execute internally when needed; native macOS build verification remains local.
 

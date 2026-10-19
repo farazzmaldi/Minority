@@ -24,6 +24,7 @@ Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 
 | DEC-016 | Referensi operasional Perintah Induk bersifat opsional dan menunjuk data yang ada | Dokumen dapat berdiri tanpa target atau merujuk Plan/Activity/Objective; referensi tidak membuat Activity baru atau menjadi pemiliknya. Ini memisahkan rincian H1 yang dahulu tercampur dalam DEC-005 | H1; RECORDED |
 | DEC-017 | Interaksi pengembangan melalui Codex dalam GUI ChatGPT Desktop pada repository lokal Minority | Konfirmasi mencakup GUI Desktop, repository lokal yang sudah ada, dan tanpa kewajiban pengguna mengoperasikan Codex CLI. Batas lingkungan native tetap merujuk DEC-013 | U3; CONFIRMED |
 | DEC-018 | Minority mendukung English dan Bahasa Indonesia; pengguna memilih bahasa secara manual melalui Settings, preferensi tersimpan antar-peluncuran, dan perubahan bahasa tidak mengubah konten buatan pengguna | Bahasa antarmuka tidak mengikuti bahasa sistem macOS secara otomatis. Perubahan pilihan hanya mengganti bahasa UI; data konten pengguna tetap sama | Pengguna; 19 Oktober 2026; CONFIRMED |
+| DEC-019 | TASK-D-001 menampilkan daftar Plan pada jendela utama, membuat Plan melalui sheet, dan menyediakan pilihan bahasa melalui jendela Settings standar macOS | Keputusan navigasi ini terbatas pada TASK-D-001 dan tidak menetapkan navigasi fitur atau rilis lain | Pengguna; 19 Oktober 2026; CONFIRMED |
 
 ## Bukti dan batas konfirmasi
 
@@ -38,6 +39,8 @@ Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip
 | DEC-014 | **Pengguna**, permintaan langsung agar proyek rapi dan keberatan tentang belum adanya masterplan tertulis serta tracking (U1) | Mengonfirmasi kebutuhan tata kelola; tidak sekaligus menerima seluruh roadmap atau MVP |
 | DEC-015 | **Agen pada G0 awal**, usulan memakai pemeriksaan persistence yang tersedia dan satu workflow; A1 meminta desain CI minimal dipertahankan | Revisi mempertahankan konfigurasi. Penerimaan baseline dan keberhasilan run tetap dicatat terpisah; tidak ada bukti run GitHub berhasil |
 | DEC-017 | **Pengguna**, kutipan “untuk selanjutnya setelah ini aku gak mau jalankan codex di terminal” dan “aku mau pakai codex dari gpt dekstop”, dengan cakupan U3 ditegaskan kembali pada finalisasi 19 Oktober 2026 | CONFIRMED hanya untuk GUI Desktop, repository lokal yang sudah ada, dan tanpa kewajiban mengoperasikan Codex CLI. Penilaian audit dan klasifikasi rilis berasal dari asisten (A2); otorisasi publikasi terpisah melalui U4 |
+| DEC-018 | **Pengguna**, pilihan bahasa manual English/Bahasa Indonesia melalui Settings (U5) | Pilihan tersimpan; UI tidak mengikuti bahasa macOS otomatis; konten buatan pengguna tidak berubah |
+| DEC-019 | **Pengguna**, jawaban langsung memilih daftar Plan, sheet tambah, dan Settings standar macOS untuk TASK-D-001 (U6) | Konfirmasi hanya menetapkan navigasi minimum untuk slice TASK-D-001; tidak menerima Technical Alpha atau Product MVP |
 
 Eksekusi perintah build/test internal mengikuti instruksi tugas dan aturan pemeriksaan; kebutuhan verifikasi native lokal mengikuti DEC-013. Keduanya tidak memperluas cakupan konfirmasi U3 menjadi persetujuan desain produk. Klasifikasi rilis pada masterplan merupakan usulan A2; pilihan cakupan tetap OPEN/PROPOSED sampai diterima pengguna.
 
@@ -56,7 +59,7 @@ Alternatif yang belum dibutuhkan meliputi backend, microservices, framework stat
 | OPEN-005 | Versi skema JSON, pencocokan ID, penanganan duplikasi, dan konfirmasi impor | H |
 | OPEN-006 | Jenis dokumen, salinan atau referensi, hak akses, penghapusan, dan pemulihan | I |
 | OPEN-007 | Cakupan pencarian, model/lisensi embeddings, dataset, serta anggaran memori/latensi pencarian dan pengindeksan; terpisah dari kinerja dasar pada OPEN-008 | J |
-| OPEN-008 | Navigasi UI, penerimaan Technical Alpha, scope Product MVP/Extended Releases, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | D/K dan gerbang rilis; bahasa UI diputuskan melalui DEC-018/REQ-UI-001; kinerja dasar tidak menunggu fitur pencarian J |
+| OPEN-008 | Penerimaan Technical Alpha, scope Product MVP/Extended Releases, navigasi di luar TASK-D-001, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | D/K dan gerbang rilis; bahasa UI diputuskan melalui DEC-018/REQ-UI-001; navigasi TASK-D-001 terbatas diputuskan melalui DEC-019; kinerja dasar tidak menunggu fitur pencarian J |
 
 Selesaikan pertanyaan ketika tugas bergantung padanya. Tidak perlu membuka ulang seluruh arsitektur untuk memperbaiki bagian yang sudah jelas.
 
