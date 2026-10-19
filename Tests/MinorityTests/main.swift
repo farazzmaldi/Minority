@@ -80,10 +80,12 @@ enum DatabaseManagerChecks {
             endDate: "2026-12-31"
         )
         let activity = try Activity(title: "Read", details: "Read a chapter")
+        let linkedActivity = try Activity(title: "Walk", details: "Take a short walk")
 
         try repository.create(plan)
         try repository.create(secondPlan)
         try repository.create(activity)
+        try repository.create(linkedActivity, linkedToPlanID: plan.id)
         try require(try repository.plan(id: plan.id) == plan, "Plan creation was not persisted")
         try require(try repository.activity(id: activity.id) == activity, "Activity creation was not persisted")
         try require(try repository.plans() == [secondPlan, plan], "Plans were not listed in a stable date order")
@@ -98,9 +100,26 @@ enum DatabaseManagerChecks {
         try require(firstLink.activityID == activity.id, "Plan-activity link points to the wrong activity")
         try require(secondLink.activityID == activity.id, "Activity could not be linked to a second plan")
         try require(
-            try repository.planActivities(forPlanID: plan.id).map(\.activityID) == [activity.id],
+            Set(try repository.planActivities(forPlanID: plan.id).map(\.activityID)) == Set([activity.id, linkedActivity.id]),
             "Plan-activity relationship was not persisted"
         )
+        try require(
+            Set(try repository.activities(forPlanID: plan.id).map(\.id)) == Set([activity.id, linkedActivity.id]),
+            "Activities linked through the atomic creation operation were not listed for the plan"
+        )
+
+        let unlinkedCandidate = try Activity(title: "Must roll back")
+        do {
+            try repository.create(unlinkedCandidate, linkedToPlanID: UUID())
+            throw CheckFailure(description: "Activity creation with a missing plan unexpectedly succeeded")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "Activity creation with a missing plan unexpectedly succeeded")
+        } catch is DatabaseError {
+            try require(
+                try repository.activity(id: unlinkedCandidate.id) == nil,
+                "Failed activity-to-plan linking left an orphan activity"
+            )
+        }
 
         do {
             _ = try repository.link(activityID: activity.id, toPlanID: plan.id)
@@ -213,6 +232,14 @@ enum DatabaseManagerChecks {
         let reopenedManager = try DatabaseManager(databaseURL: databaseURL)
         let reopenedRepository = PlanningRepository(databaseQueue: reopenedManager.databaseQueue)
         try require(try reopenedRepository.plan(id: plan.id) == plan, "Plan did not survive database reopening")
+        try require(
+            Set(try reopenedRepository.activities(forPlanID: plan.id).map(\.id)) == Set([activity.id, linkedActivity.id]),
+            "Linked activity did not survive database reopening"
+        )
+        try require(
+            try reopenedRepository.scheduleOccurrences(forActivityID: activity.id) == [firstOccurrence, secondOccurrence],
+            "Schedule occurrences did not survive database reopening"
+        )
         try require(
             try reopenedRepository.plans() == [secondPlan, plan],
             "Plan list did not survive database reopening"

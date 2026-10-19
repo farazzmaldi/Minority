@@ -27,6 +27,26 @@ public struct PlanningRepository {
     }
 
     @discardableResult
+    public func create(_ activity: Activity, linkedToPlanID planID: UUID) throws -> PlanActivity {
+        let relationship = PlanActivity(planID: planID, activityID: activity.id)
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: "INSERT INTO activities (id, title, details) VALUES (?, ?, ?)",
+                arguments: [activity.id.uuidString.lowercased(), activity.title, activity.details]
+            )
+            try db.execute(
+                sql: "INSERT INTO plan_activities (id, plan_id, activity_id) VALUES (?, ?, ?)",
+                arguments: [
+                    relationship.id.uuidString.lowercased(),
+                    planID.uuidString.lowercased(),
+                    activity.id.uuidString.lowercased()
+                ]
+            )
+        }
+        return relationship
+    }
+
+    @discardableResult
     public func link(activityID: UUID, toPlanID planID: UUID) throws -> PlanActivity {
         let relationship = PlanActivity(planID: planID, activityID: activityID)
         try databaseQueue.write { db in
@@ -120,6 +140,28 @@ public struct PlanningRepository {
                     id: decodedUUID(row["id"]),
                     planID: decodedUUID(row["plan_id"]),
                     activityID: decodedUUID(row["activity_id"])
+                )
+            }
+        }
+    }
+
+    public func activities(forPlanID planID: UUID) throws -> [Activity] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: """
+                    SELECT activities.id, activities.title, activities.details
+                    FROM activities
+                    JOIN plan_activities ON plan_activities.activity_id = activities.id
+                    WHERE plan_activities.plan_id = ?
+                    ORDER BY activities.title, activities.id
+                    """,
+                arguments: [planID.uuidString.lowercased()]
+            ).map { row in
+                try Activity(
+                    id: decodedUUID(row["id"]),
+                    title: row["title"],
+                    details: row["details"]
                 )
             }
         }
