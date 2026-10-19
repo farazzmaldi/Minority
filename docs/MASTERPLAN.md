@@ -1,6 +1,6 @@
 # Minority — masterplan
 
-Versi baseline 0.3 · 19 Oktober 2026 · Prioritas saat ini: finalisasi checkpoint C1 dan publikasi G0 yang diotorisasi melalui U4. Kesimpulan audit dokumentasi merupakan penilaian asisten; Product MVP belum disetujui.
+Versi baseline 0.3 · 19 Oktober 2026 · Prioritas saat ini: keputusan eksplisit atas cakupan Technical Alpha atau pekerjaan berikutnya; TASK-D-001 diterima terbatas pada alur Plan, Product MVP belum disetujui. Kesimpulan audit dokumentasi merupakan penilaian asisten; Product MVP belum disetujui.
 
 Dokumen ini menyatukan arah proyek dari kode dan riwayat yang diberikan pengguna. Cakupan yang belum diputuskan tetap terbuka. Penulisan masterplan tidak merupakan persetujuan otomatis atas fitur, formula, atau seluruh rancangan domain.
 
@@ -74,7 +74,7 @@ Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP dica
 | Alur WF-01 saja: membuat Plan dan Activity, menghubungkan keduanya, membuat occurrence secara eksplisit, lalu melihat data planning kembali | `REQ-PLN-001..004`, `REQ-SCH-001..002`; bukan keputusan untuk menambah Objective atau planning bertingkat |
 | Kondisi kosong, validasi input, kegagalan simpan/baca yang terlihat, dan data tetap tersedia setelah aplikasi dibuka ulang | `REQ-PLN-004`, `REQ-DAT-001..002`; kegagalan tidak ditampilkan sebagai sukses atau hasil kosong |
 | Penggunaan lokal tanpa jaringan setelah aplikasi dan dependensinya tersedia, diverifikasi melalui UI | `REQ-DAT-003`; persistence checks saja tidak cukup |
-| UI mendukung English dan Bahasa Indonesia melalui pilihan manual pada Settings; pilihan tersimpan dan tidak mengubah konten | `REQ-UI-001`; implementasinya belum dimulai |
+| UI mendukung English dan Bahasa Indonesia melalui pilihan manual pada Settings; pilihan tersimpan dan tidak mengubah konten | `REQ-UI-001`; implementasi pilihan bahasa tersedia pada TASK-D-001, penerimaan produk tetap pending |
 | Validasi awal memakai data uji/non-kritis; penggunaan rutin data pribadi penting menunggu strategi backup, restore, dan upgrade yang sudah diuji | `REQ-REL-001`; batas ini menghindari klaim kesiapan data yang belum terbukti |
 | Aplikasi dapat dijalankan secara lokal untuk evaluasi sesuai cara distribusi yang dipilih | `REQ-FND-001`, `REQ-REL-002`; signing, notarization, target kinerja, dan Product MVP tidak termasuk dalam persetujuan scope ini |
 

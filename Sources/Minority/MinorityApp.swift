@@ -3,15 +3,16 @@ import MinorityPersistence
 
 @main
 struct MinorityApp: App {
-    private let databaseManager: DatabaseManager?
+    private let planListModel: PlanListModel?
     private let initializationError: String?
 
     init() {
         do {
-            databaseManager = try DatabaseManager.applicationDatabase()
+            let databaseManager = try DatabaseManager.applicationDatabase()
+            planListModel = PlanListModel(databaseManager: databaseManager)
             initializationError = nil
         } catch {
-            databaseManager = nil
+            planListModel = nil
             initializationError = error.localizedDescription
         }
     }
@@ -19,33 +20,17 @@ struct MinorityApp: App {
     var body: some Scene {
         WindowGroup {
             Group {
-                if databaseManager != nil {
-                    VStack(spacing: 8) {
-                        Text("Minority")
-                            .font(.largeTitle)
-                        Text("System Initialized")
-                            .font(.title3)
-                            .foregroundStyle(.secondary)
-                    }
+                if let planListModel {
+                    PlanListView(model: planListModel)
                 } else {
-                    VStack(spacing: 12) {
-                        Text("Minority")
-                            .font(.largeTitle)
-                        Text("Database Unavailable")
-                            .font(.title2)
-                        Text("The local database could not be opened. Your existing data has not been reset.")
-                            .foregroundStyle(.secondary)
-                        if let initializationError {
-                            Text(initializationError)
-                                .font(.caption)
-                                .foregroundStyle(.secondary)
-                                .textSelection(.enabled)
-                        }
-                    }
-                    .padding()
+                    DatabaseUnavailableView(error: initializationError)
                 }
             }
             .frame(minWidth: 420, minHeight: 240)
+        }
+
+        Settings {
+            LanguageSettingsView()
         }
     }
 }

@@ -78,6 +78,22 @@ public struct PlanningRepository {
         }
     }
 
+    public func plans() throws -> [Plan] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: "SELECT id, title, start_date, end_date FROM plans ORDER BY start_date, title, id"
+            ).map { row in
+                try Plan(
+                    id: decodedUUID(row["id"]),
+                    title: row["title"],
+                    startDate: row["start_date"],
+                    endDate: row["end_date"]
+                )
+            }
+        }
+    }
+
     public func activity(id: UUID) throws -> Activity? {
         try databaseQueue.read { db in
             guard let row = try Row.fetchOne(

@@ -67,6 +67,7 @@ enum DatabaseManagerChecks {
         let databaseURL = directory.appendingPathComponent("planning.sqlite")
         let manager = try DatabaseManager(databaseURL: databaseURL)
         let repository = PlanningRepository(databaseQueue: manager.databaseQueue)
+        try require(try repository.plans().isEmpty, "A new planning database should have an empty plan list")
 
         let plan = try Plan(
             title: "Autumn Plan",
@@ -85,6 +86,7 @@ enum DatabaseManagerChecks {
         try repository.create(activity)
         try require(try repository.plan(id: plan.id) == plan, "Plan creation was not persisted")
         try require(try repository.activity(id: activity.id) == activity, "Activity creation was not persisted")
+        try require(try repository.plans() == [secondPlan, plan], "Plans were not listed in a stable date order")
 
         try require(
             try repository.scheduleOccurrences(forActivityID: activity.id).isEmpty,
@@ -211,6 +213,10 @@ enum DatabaseManagerChecks {
         let reopenedManager = try DatabaseManager(databaseURL: databaseURL)
         let reopenedRepository = PlanningRepository(databaseQueue: reopenedManager.databaseQueue)
         try require(try reopenedRepository.plan(id: plan.id) == plan, "Plan did not survive database reopening")
+        try require(
+            try reopenedRepository.plans() == [secondPlan, plan],
+            "Plan list did not survive database reopening"
+        )
         try require(try reopenedRepository.activity(id: activity.id) == activity, "Activity did not survive database reopening")
         try require(
             try reopenedRepository.scheduleOccurrences(forActivityID: activity.id) == occurrences,
