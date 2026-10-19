@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. TASK-D-001 adds local Plan creation and listing plus a manual English/Bahasa Indonesia interface-language setting; these changes are still local and uncommitted. Activity, schedule, and other planning workflows remain unimplemented. Product acceptance remains separate from this implementation checkpoint.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. TASK-D-001 adds local Plan creation and listing plus a manual English/Bahasa Indonesia interface-language setting. The user accepted its Plan-scoped implementation on 20 October 2026; it was published in commit `2b6b762f828833193fced97c60c81d87bd212a6f`. Activity, schedule, and other planning workflows remain unimplemented. This task acceptance does not approve Technical Alpha or Product MVP.
 
 ## Development guide
 
@@ -14,7 +14,7 @@ Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRD
 - [Progress, verification evidence, and commits](docs/PROGRESS.md)
 - [Coding-agent rules and completion checks](AGENTS.md)
 
-The current task is TASK-D-001: create and view Plans, with the user-selected plan-list, add-sheet, and standard Settings-window navigation. Link work to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
+TASK-D-001 is accepted and published for its Plan-only scope. Before implementing another feature, obtain explicit user approval for the next scope; Technical Alpha remains PROPOSED, and Product MVP scope remains OPEN. Link work to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
 
 Development interaction uses Codex in the ChatGPT Desktop graphical interface against the existing local Minority repository (DEC-017, CONFIRMED). The user is not required to operate Codex CLI. Commands documented below are available for Codex to execute internally when needed; native macOS build verification remains local.
 

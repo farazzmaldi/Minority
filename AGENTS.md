@@ -22,7 +22,7 @@ Ikuti DEC-017 yang CONFIRMED: interaksi pengguna melalui Codex dalam GUI ChatGPT
 
 Lanjutkan pekerjaan rutin yang sudah diizinkan sampai selesai. Tanyakan hanya ketidakjelasan yang memengaruhi aturan produk, keamanan data, atau keputusan yang sulit dibalik. Jangan berhenti untuk meminta persetujuan pada setiap file atau langkah kecil.
 
-Prioritas saat ini G0. Sebelum memperluas fitur, dokumentasikan kebutuhan terkait dan kriteria penerimaannya. Pernyataan asisten lama bahwa suatu rancangan disetujui bukan bukti persetujuan pengguna; pertahankan status sumbernya. Implementasi, hasil pemeriksaan, penerimaan pengguna, commit, dan push adalah status yang berbeda. Jangan melanjutkan C2/E hanya karena C1 sudah mempunyai kode.
+Baseline governance G0 telah dipublikasikan. TASK-D-001 telah diterima pengguna untuk scope Plan saja dan dipublikasikan; Technical Alpha tetap PROPOSED dan scope Product MVP tetap OPEN. Sebelum memulai fitur berikutnya, dapatkan persetujuan eksplisit atas scope tugas terkait dan kriteria penerimaannya. Pernyataan asisten lama bahwa suatu rancangan disetujui bukan bukti persetujuan pengguna; pertahankan status sumbernya. Implementasi, hasil pemeriksaan, penerimaan pengguna, commit, dan push adalah status yang berbeda. Jangan melanjutkan C2/E hanya karena C1 sudah mempunyai kode atau karena item ada di roadmap.
 
 Hormati cakupan keputusan CONFIRMED: pilihan model hybrid tidak sekaligus menyetujui semua aturan target, versi, atau evaluasi. Saat mengubah arah produk, catat sumber konfirmasi serta dampak requirement yang relevan. Sebelum penggunaan rutin data pribadi penting, penuhi gerbang backup, pemulihan, dan peningkatan database dalam masterplan.
 

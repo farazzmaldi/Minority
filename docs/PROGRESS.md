@@ -99,7 +99,7 @@ EV-BLD-001/EV-PER-001 tetap bukti pemeriksaan terdahulu. Persistence SQLite yang
 
 Run tersebut hanya memeriksa build dan persistence. Offline UI, kinerja dasar maupun semantik, packaging/signing, serta backup/restore memerlukan bukti tersendiri. Hasil CI tidak menerima Product MVP atau keputusan OPEN/PROPOSED.
 
-Pembaruan pencatatan ini memakai commit dokumentasi saja dengan penanda `[skip ci]`, sesuai [dokumentasi GitHub](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs). Tujuannya mencegah push catatan memicu run baru yang membatalkan run G0 melalui `cancel-in-progress`; penanda hanya berlaku untuk commit catatan ini. Run G0 tetap perlu mencapai conclusion aktual dan tidak dianggap lulus. Source aplikasi serta workflow tidak diubah untuk menanggapi antrean ini. Hasil akhir run, setelah tersedia, belum tercakup dalam snapshot ini.
+Pembaruan G0 awal memakai commit dokumentasi saja dengan penanda `[skip ci]`, sesuai [dokumentasi GitHub](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs), agar push catatan tidak memicu run yang membatalkan run G0 yang saat itu masih tertunda melalui `cancel-in-progress`. Source aplikasi serta workflow tidak diubah untuk menanggapi antrean tersebut. Run G0 kemudian selesai dengan conclusion SUCCESS sebagaimana dicatat pada EV-CI-002.
 
 ## Batas checkpoint dan publikasi
 
