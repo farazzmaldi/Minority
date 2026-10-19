@@ -13,11 +13,11 @@ Snapshot 19 Oktober 2026, diperbarui saat finalisasi baseline G0 v0.3. Penilaian
 
 | Tahap | Implementasi yang diamati | Verifikasi | Penerimaan produk | Git lokal dan publikasi |
 | --- | --- | --- | --- | --- |
-| G0 | Dokumen v0.3, AGENTS, dan konfigurasi CI tersedia | Dokumen: EV-DOC-003; koreksi provenance dilakukan saat finalisasi | Publikasi baseline diotorisasi U4; penilaian audit A2 terpisah; Technical Alpha PROPOSED, Product MVP OPEN | Commit/push dan run CI dicatat setelah benar-benar terjadi |
+| G0 | Baseline v0.3, AGENTS, README, dan workflow dipublikasikan | Dokumen EV-DOC-004 PASSED; CI PENDING/QUEUED tanpa conclusion, EV-CI-002; build/persistence GitHub belum dimulai | Publikasi baseline diotorisasi U4; penilaian audit A2 terpisah; Technical Alpha PROPOSED, Product MVP OPEN | COMMITTED/PUSHED `d83d990fb4a59ac421c17885289c07f1f3405a6c`; remote diverifikasi sama |
 | A | Bootstrap SwiftUI tersedia | Build EV-BLD-001 PASSED; startup UI belum diperiksa dalam pekerjaan G0 | REPORTED ONLY di H1 | Commit `3fabb98`; merupakan ancestor checkpoint C1 yang dipublikasikan |
 | B | SQLite dan GRDB tersedia | Persistence EV-PER-001 PASSED; upgrade database lama belum diuji khusus | REPORTED ONLY di H1 | Commit `2975781`; merupakan ancestor checkpoint C1 yang dipublikasikan |
-| README dasar | Dokumentasi fondasi dan checkpoint C1 tersedia | Status dicocokkan dengan C1 terpublikasi `7e268be` | Publikasi dokumentasi G0 diotorisasi U4 | Dasar `3c668f2`; pembaruan disertakan pada checkpoint G0, terpisah dari C1 |
-| C | Spesifikasi domain direkonstruksi dan asal keputusan diperjelas | Pilihan hybrid CONFIRMED melalui U2; rincian lain merujuk register keputusan | PENDING untuk rancangan domain keseluruhan | Dokumen lokal; belum di-commit |
+| README dasar | Dokumentasi fondasi dan checkpoint C1 tersedia | Status dicocokkan dengan C1 terpublikasi `7e268be` | Publikasi dokumentasi G0 diotorisasi U4 | Dasar `3c668f2`; pembaruan dipublikasikan pada G0 `d83d990`, terpisah dari C1 |
+| C | Spesifikasi domain direkonstruksi dan asal keputusan diperjelas | Pilihan hybrid CONFIRMED melalui U2; rincian lain merujuk register keputusan | PENDING untuk rancangan domain keseluruhan | Dokumen tercakup dalam G0 terpublikasi `d83d990`; publikasi tidak menerima seluruh desain |
 | C1 | Empat file core planning di-commit tanpa perubahan terhadap checkpoint | Build dan persistence EV-BLD-001/EV-PER-001 PASSED sebelum audit; hash empat blob cocok saat finalisasi; UI di luar lingkup | Publikasi checkpoint diterima melalui U4; penerimaan produk tetap PENDING | COMMITTED/PUSHED `7e268be9b3230675fccc34ff06e038f6651c149f`; remote `main` diverifikasi sama |
 | D | UI planning dan Objective belum tersedia | NOT RUN | PENDING | Belum ada commit |
 | E / F / G | Perintah, pelaksanaan, dan evaluasi belum tersedia | NOT RUN | PENDING | Belum ada commit |
@@ -29,11 +29,11 @@ Snapshot 19 Oktober 2026, diperbarui saat finalisasi baseline G0 v0.3. Penilaian
 | Tugas | Requirement / keputusan | Hasil dan acceptance criteria | Status / bukti |
 | --- | --- | --- | --- |
 | TASK-G0-001 | REQ-GOV-001..003; DEC-014 | Masterplan, kebutuhan ber-ID, keputusan bersumber, dan progres yang memisahkan implementasi/verifikasi/acceptance | IMPLEMENTED lokal; publikasi checkpoint diotorisasi U4; cakupan Product MVP tetap OPEN |
-| TASK-G0-002 | REQ-GOV-002..003; DEC-015 | Aturan agen konkret, workflow dapat dibaca, build memakai lockfile dan executable pemeriksaan yang tersedia | Konfigurasi IMPLEMENTED; perintah lokal PASSED; hasil GitHub NOT RUN |
+| TASK-G0-002 | REQ-GOV-002..003; DEC-015 | Aturan agen konkret, workflow dapat dibaca, build memakai lockfile dan executable pemeriksaan yang tersedia | Konfigurasi dipublikasikan dalam `d83d990`; hasil run GitHub pertama dicatat pada EV-CI-002 |
 | TASK-C1-001 | REQ-PLN-001..003, REQ-SCH-001..002; DEC-004/009 | Plan, Activity, relasi, dan occurrence tersimpan; data salah ditolak; data bertahan setelah dibuka ulang | IMPLEMENTED sebelum G0; suite lokal PASSED; hash cocok; COMMITTED/PUSHED `7e268be` melalui U4, tanpa menerima keseluruhan produk |
 | TASK-G0-003 | REQ-GOV-001..003; DEC-005/014/016; audit A1 | Revisi terarah: strategi rilis, enam workflow, gerbang data, status persetujuan, provenance, serta batas checkpoint; source C1 dan CI dipertahankan | IMPLEMENTED lokal; EV-DOC-002/EV-STA-002; penilaian tindak lanjut P0 berasal dari A2; Product MVP tetap OPEN |
 | TASK-G0-004 | REQ-GOV-001..003, REQ-DAT-003, REQ-REL-002; DEC-017; U3/A2 | Workflow Desktop CONFIRMED melalui U3; klasifikasi rilis dan penjelasan batas verifikasi merupakan usulan/penilaian A2; roadmap, requirement IDs, C1, dan CI dipertahankan | IMPLEMENTED pada koreksi terdahulu; EV-DOC-003/EV-STA-003; saat itu tanpa build, staging, commit, atau push |
-| TASK-G0-005 | REQ-GOV-001..003; DEC-017; U4 | Koreksi provenance U3; pisahkan publikasi C1 dan G0; verifikasi remote serta run CI yang benar-benar terjadi; catat hasil melalui commit dokumentasi | C1 COMMITTED/PUSHED; dokumen G0 diselaraskan; hasil publikasi G0 dan CI dicatat pada bukti finalisasi |
+| TASK-G0-005 | REQ-GOV-001..003; DEC-017; U4 | Koreksi provenance U3; pisahkan publikasi C1 dan G0; verifikasi remote serta run CI yang benar-benar terjadi; catat hasil melalui commit dokumentasi | Publikasi C1 `7e268be` dan G0 `d83d990` selesai; EV-GIT-004/005 mencatat remote. Verifikasi CI masih PENDING: run menunggu runner GitHub, conclusion belum tersedia; EV-CI-002/EV-SVC-001 |
 
 ## Bukti G0 awal sebelum audit
 
@@ -66,7 +66,7 @@ Checksum di atas merupakan snapshot historis saat C1 belum di-commit. Pada final
 | --- | --- | --- |
 | EV-DOC-002 | Tautan berkas/anchor internal, ID unik, rentang ID, referensi roadmap/tugas/workflow, status persetujuan, serta Markdown dan `git diff --check` | PASSED untuk dokumen v0.2. Konfirmasi baru terbatas pada pilihan hybrid DEC-005/REQ-CMD-001 melalui U2; kandidat MVP dan kebutuhan baru tetap PROPOSED/RECORDED sesuai sumber |
 | EV-STA-002 | Snapshot sebelum/sesudah terhadap source, package, script, workflow, HEAD, dan entri index | Source aplikasi dan empat file C1 sama; workflow tidak berubah; HEAD tetap `3c668f25e39854ec8d6ba544453e2fa7e6bd74cd`; entri staging sama dan tidak ada stage/commit/push. Ref lokal tersimpan `origin/main` sama; remote live tidak diperiksa |
-| EV-CI-001 | Status run GitHub Actions | NOT RUN dalam pekerjaan G0; ID/URL run belum tersedia. Konfigurasi tetap runner `macos-15`, build dengan lockfile, lalu executable `MinorityPersistenceChecks`, sesuai package lokal; batas kapabilitas runner baru terbukti setelah run |
+| EV-CI-001 | Status run GitHub Actions sebelum publikasi | NOT RUN pada penyusunan awal G0; saat itu ID/URL run belum tersedia. Konfigurasi runner `macos-15`, build dengan lockfile, lalu executable `MinorityPersistenceChecks` dicatat sesuai package lokal. Run setelah publikasi dicatat terpisah pada EV-CI-002 |
 
 CI build/persistence belum memverifikasi UI, packaging, signing, atau backup/restore. Setelah publikasi yang diotorisasi, jalankan satu pemeriksaan awal dan catat SHA sumber, ID/URL run, hasil, serta batasnya. Jangan mengganti status NOT RUN dengan PASSED berdasarkan parse YAML atau build lokal.
 
@@ -85,19 +85,24 @@ EV-BLD-001/EV-PER-001 tetap bukti pemeriksaan terdahulu. Persistence SQLite yang
 | --- | --- | --- |
 | EV-GIT-004 | Checkpoint C1, batas commit, identitas noreply, dan remote `main` | PASSED: [commit C1 `7e268be9b3230675fccc34ff06e038f6651c149f`](https://github.com/farazzmaldi/Minority/commit/7e268be9b3230675fccc34ff06e038f6651c149f) berisi tepat empat file implementasi; empat blob cocok dengan checkpoint SHA-256; identitas noreply dari riwayat proyek cocok dengan akun GitHub aktif; push berhasil dan `git ls-remote` mengembalikan SHA yang sama pada 19 Oktober 2026. Dokumen G0 tidak ikut commit C1 |
 | EV-DOC-004 | Koreksi provenance dan konsistensi baseline G0 sebelum commit | PASSED untuk tautan/anchor, 35 requirement, 17 keputusan, status OPEN/PROPOSED, roadmap, Markdown, serta `git diff --check`. U3 hanya konfirmasi workflow; A2 adalah penilaian/usulan asisten; U4 mengotorisasi publikasi. Source aplikasi dan workflow tidak diubah; build aplikasi tidak diulang |
+| EV-GIT-005 | Checkpoint G0 dan remote `main` | PASSED: [commit G0 `d83d990fb4a59ac421c17885289c07f1f3405a6c`](https://github.com/farazzmaldi/Minority/commit/d83d990fb4a59ac421c17885289c07f1f3405a6c) berisi tepat empat dokumen `docs/`, root `AGENTS.md`, `README.md`, dan workflow; parent adalah C1 `7e268be`; push berhasil dan SHA remote diverifikasi sama pada 19 Oktober 2026. Tidak ada Swift source dalam commit G0 |
+| EV-CI-002 | Quality, dipicu push checkpoint G0 | Commit `d83d990fb4a59ac421c17885289c07f1f3405a6c`; workflow **Quality**; run ID **39281704874**; [GitHub Actions run](https://github.com/farazzmaldi/Minority/actions/runs/39281704874). Pemeriksaan setelah menunggu tetap **QUEUED/PENDING**, conclusion kosong/null; job `Build and persistence` ID `118157105236` belum memiliki runner, steps masih kosong, dan check-run tidak memiliki anotasi error. Belum ada hasil build atau persistence dari GitHub; tidak dinyatakan PASSED atau FAILED |
+| EV-SVC-001 | Status layanan GitHub saat run tertunda | [Status resmi GitHub](https://www.githubstatus.com/api/v2/summary.json) melaporkan Actions `degraded_performance` dan insiden `8tzbpcnl75jp`, “Degraded availability for GitHub Actions, GitHub Pages and Webhooks”, berstatus investigating. GitHub menyebut kemungkinan keterlambatan pemrosesan workflow; pembaruan insiden tercatat 19 Oktober 2026 pukul 22.56.34 WIB. Gangguan ini merupakan konteks eksternal; penyebab spesifik antrean repository tidak dibuktikan lebih lanjut |
 
-SHA governance serta ID/URL dan hasil run CI dicatat setelah checkpoint tersebut dipublikasikan. Hasil CI belum diasumsikan dari keberhasilan lokal.
+Run tersebut hanya memeriksa build dan persistence. Offline UI, kinerja dasar maupun semantik, packaging/signing, serta backup/restore memerlukan bukti tersendiri. Hasil CI tidak menerima Product MVP atau keputusan OPEN/PROPOSED.
+
+Pembaruan pencatatan ini memakai commit dokumentasi saja dengan penanda `[skip ci]`, sesuai [dokumentasi GitHub](https://docs.github.com/en/actions/how-tos/manage-workflow-runs/skip-workflow-runs). Tujuannya mencegah push catatan memicu run baru yang membatalkan run G0 melalui `cancel-in-progress`; penanda hanya berlaku untuk commit catatan ini. Run G0 tetap perlu mencapai conclusion aktual dan tidak dianggap lulus. Source aplikasi serta workflow tidak diubah untuk menanggapi antrean ini. Hasil akhir run, setelah tersedia, belum tercakup dalam snapshot ini.
 
 ## Batas checkpoint dan publikasi
 
 | Kelompok | Berkas | Status dan batas |
 | --- | --- | --- |
 | Implementasi C1 | `Sources/MinorityPersistence/DatabaseManager.swift`, `Sources/MinorityPersistence/PlanningDomain.swift`, `Sources/MinorityPersistence/PlanningRepository.swift`, `Tests/MinorityTests/main.swift` | COMMITTED/PUSHED `7e268be9b3230675fccc34ff06e038f6651c149f`; isi commit hanya empat file ini; remote SHA terverifikasi |
-| Governance G0 | `docs/MASTERPLAN.md`, `docs/REQUIREMENTS.md`, `docs/DECISIONS.md`, `docs/PROGRESS.md`, dan root `AGENTS.md` | Dokumen v0.3; publikasi checkpoint diotorisasi U4; SHA aktual dicatat setelah commit tersedia; Product MVP OPEN |
-| Dokumentasi pengantar | `README.md` | Perubahan lokal untuk status dan tautan G0; layak digabung dengan governance |
-| Konfigurasi CI | `.github/workflows/quality.yml` | Ada sebagai berkas lokal dari G0 awal; tidak diubah pada revisi audit; run GitHub belum tersedia |
+| Governance G0 | `docs/MASTERPLAN.md`, `docs/REQUIREMENTS.md`, `docs/DECISIONS.md`, `docs/PROGRESS.md`, dan root `AGENTS.md` | COMMITTED/PUSHED dalam `d83d990`; publikasi diotorisasi U4; Product MVP OPEN |
+| Dokumentasi pengantar | `README.md` | Dipublikasikan bersama G0 `d83d990` dengan status C1 yang sudah diselaraskan |
+| Konfigurasi CI | `.github/workflows/quality.yml` | Dipublikasikan dalam G0 `d83d990`; tanpa perubahan dari rancangan awal; run aktual EV-CI-002 |
 
-Pemisahan yang diotorisasi U4: **checkpoint 1** hanya empat file C1, pesan `feat: establish core planning domain`, sudah dipublikasikan sebagai `7e268be`; **checkpoint 2** governance, README, dan CI, pesan `chore: establish G0 governance and quality checks`. SHA checkpoint kedua, remote, dan run CI ditambahkan setelah tersedia melalui pembaruan dokumentasi terpisah.
+Pemisahan yang diotorisasi U4: **checkpoint 1** hanya empat file C1, pesan `feat: establish core planning domain`, dipublikasikan sebagai `7e268be`; **checkpoint 2** governance, README, dan CI, pesan `chore: establish G0 governance and quality checks`, dipublikasikan sebagai `d83d990`. Pencatatan hasil publikasi dan CI ini merupakan pembaruan `docs/PROGRESS.md` melalui commit dokumentasi terpisah, tanpa mengubah kedua checkpoint tersebut.
 
 Urutan pembaruan: setelah commit C1 nyata, periksa isi/SHA lalu perbarui status C1 dalam dokumen ini, `README.md`, dan bagian arsitektur yang masih menyebut pekerjaan lokal. Setelah push yang diotorisasi, catat bukti remote. Setelah checkpoint G0/CI dipublikasikan, catat run CI pertama. Bukti commit sendiri ditambahkan setelah SHA tersedia, melalui pembaruan tracking berikutnya; jangan mengarang SHA masa depan atau mengklaim working tree bersih saat pekerjaan lain masih ada.
 
@@ -107,12 +112,12 @@ Urutan pembaruan: setelah commit C1 nyata, periksa isi/SHA lalu perbarui status 
 | --- | --- |
 | P0-01 | Penilaian asisten A2: strategi dan istilah rilis ditangani pada tingkat dokumentasi; penetapan scope produk tetap OPEN |
 | P0-02 | Penilaian asisten A2: batas konfirmasi telah diperjelas. Pilihan hybrid CONFIRMED melalui U2; rincian DEC-016/REQ-CMD-007 tetap RECORDED |
-| P0-03 | Penilaian asisten A2: batas checkpoint dan kronologi tersedia. Publikasi aktual kini diotorisasi terpisah melalui U4 dan dicatat sesuai bukti Git |
+| P0-03 | Penilaian asisten A2 tentang batas checkpoint tetap terpisah dari persetujuan pengguna. Publikasi aktual C1 `7e268be` dan G0 `d83d990` dilakukan melalui U4, dengan bukti remote EV-GIT-004/005 |
 | P1-01 | WF-01..06 merujuk requirement yang sama, tanpa menduplikasi definisinya |
 | P1-02 | Gerbang backup/restore/upgrade berlaku sebelum penggunaan rutin data penting; implementasinya belum dilakukan |
 | P1-03 | REQ-CMD-006 dan REQ-EVA-004/005 PROPOSED; offline diperjelas pada REQ-DAT-003 |
 | P1-04 | Register keputusan menyimpan pelaku, ringkasan bukti, tanggal pencatatan, dan batas konfirmasi |
-| P1-05 | CI minimal dipertahankan dan status run NOT RUN; pemeriksaan pertama menunggu publikasi |
+| P1-05 | CI minimal dipertahankan; workflow sudah dipublikasikan. Identitas serta hasil run pertama dicatat pada EV-CI-002 |
 | P2-01 | Status requirement konsisten; implementasi/verifikasi dicatat di progres |
 | P2-02 | Hash lama dipertahankan; commit SHA dan identitas run diutamakan untuk tracking berikutnya |
 | P2-03 | Root `AGENTS.md` diperiksa; urutan pembaruan status setelah commit dicatat di atas |
