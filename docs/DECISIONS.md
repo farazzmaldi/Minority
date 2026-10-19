@@ -1,6 +1,6 @@
 # Minority — keputusan dan arsitektur
 
-Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
+Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/U5/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
 
 ## Register keputusan
 
@@ -23,6 +23,7 @@ Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 
 | DEC-015 | Gunakan executable persistence yang ada dan satu workflow build/persistence | Menambah pemeriksaan otomatis tanpa framework tes atau dependensi aplikasi baru; workflow memerlukan eksekusi GitHub tersendiri. Status konfigurasi dan run dicatat di progres | K1 dan rancangan G0; PROPOSED |
 | DEC-016 | Referensi operasional Perintah Induk bersifat opsional dan menunjuk data yang ada | Dokumen dapat berdiri tanpa target atau merujuk Plan/Activity/Objective; referensi tidak membuat Activity baru atau menjadi pemiliknya. Ini memisahkan rincian H1 yang dahulu tercampur dalam DEC-005 | H1; RECORDED |
 | DEC-017 | Interaksi pengembangan melalui Codex dalam GUI ChatGPT Desktop pada repository lokal Minority | Konfirmasi mencakup GUI Desktop, repository lokal yang sudah ada, dan tanpa kewajiban pengguna mengoperasikan Codex CLI. Batas lingkungan native tetap merujuk DEC-013 | U3; CONFIRMED |
+| DEC-018 | Minority mendukung English dan Bahasa Indonesia; pengguna memilih bahasa secara manual melalui Settings, preferensi tersimpan antar-peluncuran, dan perubahan bahasa tidak mengubah konten buatan pengguna | Bahasa antarmuka tidak mengikuti bahasa sistem macOS secara otomatis. Perubahan pilihan hanya mengganti bahasa UI; data konten pengguna tetap sama | Pengguna; 19 Oktober 2026; CONFIRMED |
 
 ## Bukti dan batas konfirmasi
 
@@ -55,7 +56,7 @@ Alternatif yang belum dibutuhkan meliputi backend, microservices, framework stat
 | OPEN-005 | Versi skema JSON, pencocokan ID, penanganan duplikasi, dan konfirmasi impor | H |
 | OPEN-006 | Jenis dokumen, salinan atau referensi, hak akses, penghapusan, dan pemulihan | I |
 | OPEN-007 | Cakupan pencarian, model/lisensi embeddings, dataset, serta anggaran memori/latensi pencarian dan pengindeksan; terpisah dari kinerja dasar pada OPEN-008 | J |
-| OPEN-008 | Bahasa dan navigasi UI, penerimaan Technical Alpha, scope Product MVP/Extended Releases, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | D/K dan gerbang rilis; kinerja dasar tidak menunggu fitur pencarian J |
+| OPEN-008 | Navigasi UI, penerimaan Technical Alpha, scope Product MVP/Extended Releases, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | D/K dan gerbang rilis; bahasa UI diputuskan melalui DEC-018/REQ-UI-001; kinerja dasar tidak menunggu fitur pencarian J |
 
 Selesaikan pertanyaan ketika tugas bergantung padanya. Tidak perlu membuka ulang seluruh arsitektur untuk memperbaiki bagian yang sudah jelas.
 

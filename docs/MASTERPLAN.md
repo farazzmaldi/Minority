@@ -31,6 +31,7 @@ Kebutuhan tidak disalin menjadi spesifikasi berbeda di setiap dokumen. Roadmap m
 - **U2 — Pilihan hybrid pengguna:** kutipan “Model kombinasi keduanya.”, disampaikan kembali dalam audit G0 bagian P0-02 yang diberikan pengguna pada 19 Oktober 2026. Konteksnya pemilihan Perintah Induk sebagai dokumen formal sekaligus pengendali kegiatan. Tanggal ucapan asli tidak tersedia; cakupan konfirmasi hanya pilihan model, bukan semua aturan turunannya. Ringkasan bukti dipertahankan di `DECISIONS.md`.
 - **U3 — Workflow yang dikonfirmasi langsung pengguna, 19 Oktober 2026:** gunakan Codex melalui GUI ChatGPT Desktop, kerjakan repository lokal Minority yang sudah ada, dan jangan mewajibkan pengguna mengoperasikan Codex CLI. Konfirmasi ini terbatas pada tiga pilihan workflow tersebut; kesimpulan audit dan klasifikasi rilis bukan persetujuan produk pengguna.
 - **U4 — Otorisasi finalisasi langsung pengguna, 19 Oktober 2026:** koreksi provenance; verifikasi, commit, dan push C1 secara terpisah; sinkronkan lalu commit/push G0; periksa CI dan catat hasilnya melalui commit dokumentasi terpisah bila diperlukan. Otorisasi ini menerima publikasi checkpoint, tanpa menyetujui Product MVP atau memulai fitur baru.
+- **U5 — Keputusan bahasa UI langsung pengguna, 19 Oktober 2026:** Minority mendukung English dan Bahasa Indonesia; pengguna memilih bahasa secara manual melalui Settings; pilihan tersimpan antar-peluncuran; bahasa tidak mengikuti system language macOS; dan pergantian bahasa tidak mengubah konten buatan pengguna. Dicatat sebagai `DEC-018`/`REQ-UI-001`; tidak mengotorisasi implementasi lokalisasi.
 - **K1 — Repository dan checkpoint:** dasar dokumentasi awal `3c668f25e39854ec8d6ba544453e2fa7e6bd74cd`; C1 kemudian di-commit dan dipublikasikan sebagai `7e268be9b3230675fccc34ff06e038f6651c149f`. Remote `main` diverifikasi menunjuk SHA C1 pada 19 Oktober 2026. Status publikasi governance dan CI dicatat di `PROGRESS.md`.
 - **H1 — Riwayat lampiran:** percakapan tentang Foundation A/B/C1, hybrid Perintah Induk, empat keputusan domain, tiga penyesuaian, dan usulan roadmap. Disampaikan kembali pada 19 Oktober 2026. Teks mengandung laporan serta pernyataan persetujuan asisten; pernyataan tersebut bukan bukti persetujuan langsung pengguna.
 - **V1 — Pemeriksaan G0 awal:** build dan executable persistence dijalankan pada kode lokal sebelum audit. Rinciannya dicatat di `PROGRESS.md`; revisi dokumentasi ini tidak mengulang build aplikasi.
@@ -50,7 +51,7 @@ Urutan berikut adalah rancangan berdasarkan dependensi, tanpa tenggat atau perse
 | B | Fondasi penyimpanan | A | Database lokal, migrasi, integritas operasi, dan fungsi inti offline — `REQ-DAT-001..003` |
 | C | Spesifikasi domain | G0 dan H1 | Identitas entitas, relasi, serta aturan terkait tahap berikutnya cukup jelas untuk diimplementasikan |
 | C1 | Core planning persistence | B, bagian C yang relevan | Plan, Activity, relasi, dan occurrence tersimpan serta tervalidasi — `REQ-PLN-001..003`, `REQ-SCH-001..002` |
-| D | Planning yang dapat dipakai | C1; keputusan antarmuka | Alur membuat dan melihat rencana, kegiatan, serta jadwal; Objective ditambahkan setelah kebutuhannya dirinci — `REQ-PLN-004`, `REQ-OBJ-001` |
+| D | Planning yang dapat dipakai | C1; keputusan navigasi UI | Alur membuat dan melihat rencana, kegiatan, serta jadwal; Objective ditambahkan setelah kebutuhannya dirinci — `REQ-PLN-004`, `REQ-OBJ-001`; pilihan bahasa mengikuti `REQ-UI-001` |
 | E | Perintah operasional | C1, spesifikasi publikasi, koreksi, dan keluaran dokumen | Perintah Induk hybrid serta Perintah Harian dengan versi, snapshot, dan representasi dokumen — `REQ-CMD-001..007` |
 | F | Pelaksanaan | C1, spesifikasi status pelaksanaan | Pencatatan mandiri dengan satu identitas pelaksanaan per occurrence — `REQ-EXE-001..002` |
 | G | Evaluasi | F, rubrik dan formula yang ditetapkan | Penilaian manual/otomatis dan penjelasannya dapat ditelusuri; data kurang dan sejarah koreksi terjaga — `REQ-EVA-001..005` |
@@ -69,11 +70,18 @@ Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP dica
 
 | Cakupan kandidat | Acuan dan batas |
 | --- | --- |
-| Membuat dan melihat Plan serta Activity, menghubungkan keduanya, lalu membuat dan melihat jadwal eksplisit | `REQ-PLN-001..004`, `REQ-SCH-001..002`; alur WF-01. Koreksi masukan dan kebijakan edit/hapus data tersimpan harus dijelaskan sebelum rilis melalui OPEN-001 |
-| Kondisi kosong, validasi, kegagalan simpan/baca, dan data yang tetap tersedia setelah restart | `REQ-PLN-004`, `REQ-DAT-001..002` |
-| Fungsi inti tanpa jaringan setelah aplikasi dan dependensinya tersedia | `REQ-DAT-003`; build awal dapat memerlukan unduhan dependensi |
-| Perlindungan data yang cukup untuk penggunaan rutin | `REQ-REL-001`: strategi backup, restore, serta peningkatan database ditetapkan dan diuji sebelum data pribadi penting digunakan |
-| Alur UI serta bundle yang dapat dijalankan sesuai cara distribusi yang dipilih | `REQ-FND-001`, `REQ-REL-002`; belum ada janji signing, notarization, atau target kinerja tertentu |
+| Alur WF-01 saja: membuat Plan dan Activity, menghubungkan keduanya, membuat occurrence secara eksplisit, lalu melihat data planning kembali | `REQ-PLN-001..004`, `REQ-SCH-001..002`; bukan keputusan untuk menambah Objective atau planning bertingkat |
+| Kondisi kosong, validasi input, kegagalan simpan/baca yang terlihat, dan data tetap tersedia setelah aplikasi dibuka ulang | `REQ-PLN-004`, `REQ-DAT-001..002`; kegagalan tidak ditampilkan sebagai sukses atau hasil kosong |
+| Penggunaan lokal tanpa jaringan setelah aplikasi dan dependensinya tersedia, diverifikasi melalui UI | `REQ-DAT-003`; persistence checks saja tidak cukup |
+| UI mendukung English dan Bahasa Indonesia melalui pilihan manual pada Settings; pilihan tersimpan dan tidak mengubah konten | `REQ-UI-001`; implementasinya belum dimulai |
+| Validasi awal memakai data uji/non-kritis; penggunaan rutin data pribadi penting menunggu strategi backup, restore, dan upgrade yang sudah diuji | `REQ-REL-001`; batas ini menghindari klaim kesiapan data yang belum terbukti |
+| Aplikasi dapat dijalankan secara lokal untuk evaluasi sesuai cara distribusi yang dipilih | `REQ-FND-001`, `REQ-REL-002`; signing, notarization, target kinerja, dan Product MVP tidak termasuk dalam persetujuan scope ini |
+
+**Di luar kandidat Technical Alpha:** Perintah Induk/Harian, pelaksanaan, evaluasi, impor, dokumen/OCR, pencarian, Objective, prioritas terurut, pengulangan jadwal, dan kebijakan koreksi/hapus. Daftar ini membatasi usulan alpha; keputusan terbuka yang dirujuk pada OPEN-001/002/008 tetap belum diputuskan untuk produk berikutnya. Cakupan tersebut masih PROPOSED sampai pengguna menyetujuinya.
+
+**Irisan implementasi pertama yang diusulkan — TASK-D-001:** UI untuk membuat Plan dan menampilkan daftar/rincian Plan dengan data yang tersimpan melalui `PlanningRepository` yang ada, serta pilihan bahasa pada Settings. Kriteria selesai: Plan valid dapat dibuat dan muncul setelah aplikasi dibuka ulang; input judul/tanggal yang tidak valid dapat diperbaiki; keadaan kosong dibedakan dari kegagalan baca; kegagalan simpan tidak ditampilkan sebagai sukses; pengguna dapat mengganti English/Bahasa Indonesia secara manual, pilihan bertahan setelah peluncuran ulang, dan konten buatan pengguna tidak berubah; tidak ada migration atau dependensi baru tanpa kebutuhan yang ditemukan. Irisan ini belum mengklaim Technical Alpha selesai dan tidak mencakup edit/hapus.
+
+Keputusan bahasa untuk TASK-D-001 sudah CONFIRMED melalui U5. Sebelum tugas dimulai, pengguna tetap perlu menerima atau mengubah kandidat scope alpha serta menetapkan pola navigasi minimum. Kebijakan edit/hapus dikecualikan dari irisan pertama dan harus diputuskan sebelum cakupan alpha yang lebih luas diterima. Tugas implementasi juga harus memeriksa kemampuan baca daftar pada repository saat ini dan menambahkannya hanya bila dibutuhkan oleh alur tersebut.
 
 ### Product MVP — scope memerlukan persetujuan
 
@@ -92,7 +100,7 @@ Extended Releases memuat kemampuan tambahan yang dipilih melalui roadmap dan per
 - Build serta pemeriksaan persistence lulus pada versi yang akan dirilis; hasil UI, packaging/signing yang relevan, dan hasil GitHub Actions dicatat terpisah. CI disebut lulus setelah ada run berhasil yang menunjuk commit terkait.
 - Pengguna menerima hasil dan keterbatasan rilis. Versi sumber diidentifikasi dengan commit, status publikasi, dan bukti pemeriksaan; tidak ada klaim selesai berdasarkan daftar file saja.
 
-Keputusan rilis yang masih terbuka: penerimaan cakupan Technical Alpha, cakupan Product MVP, pembagian Extended Releases, kebijakan koreksi/hapus, bahasa dan navigasi UI, kriteria kinerja dasar, mekanisme backup/restore, cara distribusi, serta tenggat. Detail terkait merujuk OPEN-001/008 dalam `DECISIONS.md`; pertanyaan untuk fitur berikutnya diselesaikan sebelum fitur tersebut dibangun.
+Keputusan rilis yang masih terbuka: penerimaan cakupan Technical Alpha, cakupan Product MVP, pembagian Extended Releases, kebijakan koreksi/hapus, bahasa dan navigasi UI, kriteria kinerja dasar, mekanisme backup/restore, cara distribusi, serta tenggat. Detail terkait merujuk OPEN-001/008 dalam `DECISIONS.md`; pertanyaan yang memengaruhi tugas diselesaikan sebelum implementasi tugas itu dimulai.
 
 ## Peta alur produk
 
