@@ -4,7 +4,21 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap) and Foundation B (SQLite persistence with GRDB) are complete. The app initializes its local database and displays either its initialized state or a database initialization error. No planning or life-management domain features are implemented yet.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. The app initializes its local database and displays either its initialized state or an initialization error. Planning models, persistence operations, the `planning_v1` migration, and additional checks are available; no planning workflow is connected to the interface yet. Product acceptance remains separate from this implementation checkpoint.
+
+## Development guide
+
+- [Masterplan and phased scope](docs/MASTERPLAN.md)
+- [Requirements and acceptance criteria](docs/REQUIREMENTS.md)
+- [Decisions and architecture](docs/DECISIONS.md)
+- [Progress, verification evidence, and commits](docs/PROGRESS.md)
+- [Coding-agent rules and completion checks](AGENTS.md)
+
+The current priority is G0: written project governance. Link each task to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
+
+Development interaction uses Codex in the ChatGPT Desktop graphical interface against the existing local Minority repository (DEC-017, CONFIRMED). The user is not required to operate Codex CLI. Commands documented below are available for Codex to execute internally when needed; native macOS build verification remains local.
+
+The [release strategy](docs/MASTERPLAN.md#strategi-rilis) uses the assistant's proposed distinction between a planning/scheduling **Technical Alpha**, a **Product MVP** requiring explicit user approval of its still-open scope, and **Extended Releases** selected through the roadmap. Audit conclusions and proposed release classifications are not direct user approval. Publication of the C1 and G0 checkpoints is authorized separately; Product MVP approval remains pending. Backup, recovery, and database upgrade safety must be defined and tested before routine use with important personal data.
 
 ## Technology
 
@@ -42,6 +56,10 @@ swift run MinorityPersistenceChecks
 
 It checks database initialization, read/write behavior, migration idempotency, preservation of existing data when initialization fails, transaction rollback, and SQLite error propagation. This is a standalone executable target; the package does not currently define an XCTest target.
 
+Persistence checks alone do not verify offline UI functionality; that requires exercising the released UI flows without a network connection. Basic UI, startup, and database performance have separate acceptance criteria from semantic search performance. Numerical targets remain open.
+
+The [Quality workflow](.github/workflows/quality.yml) builds the package using resolved dependencies and runs persistence checks on macOS for pull requests to `main`, pushes to `main`, or manual runs. Publication and actual run results are recorded in [progress](docs/PROGRESS.md); a passing result and required merge protection must be verified separately. UI behavior is outside these automated checks.
+
 ## Package the macOS app
 
 Create `dist/Minority.app`:
@@ -74,6 +92,6 @@ These capabilities are planned and are not part of the current application.
 ## Current limitations
 
 - The app is still a bootstrap screen; it has no planning or activity workflows.
-- The database migration is an empty foundation migration. No domain tables or records are defined.
+- The database has the original `foundation` migration plus the additive `planning_v1` migration. The committed C1 persistence checkpoint does not provide planning UI or constitute acceptance of the complete domain/product design.
 - Persistence checks must be run through `MinorityPersistenceChecks`; `swift test` has no test target to run.
 - The packaged app is ad hoc signed and is not ready for public distribution or notarization.
