@@ -1,6 +1,6 @@
 # Minority — keputusan dan arsitektur
 
-Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/U5/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
+Dokumen awal dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama; DEC-020..022 ditambahkan pada 20 Oktober 2026. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/U5/U6/U7/U8/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
 
 ## Register keputusan
 
@@ -25,10 +25,13 @@ Dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 
 | DEC-017 | Interaksi pengembangan melalui Codex dalam GUI ChatGPT Desktop pada repository lokal Minority | Konfirmasi mencakup GUI Desktop, repository lokal yang sudah ada, dan tanpa kewajiban pengguna mengoperasikan Codex CLI. Batas lingkungan native tetap merujuk DEC-013 | U3; CONFIRMED |
 | DEC-018 | Minority mendukung English dan Bahasa Indonesia; pengguna memilih bahasa secara manual melalui Settings, preferensi tersimpan antar-peluncuran, dan perubahan bahasa tidak mengubah konten buatan pengguna | Bahasa antarmuka tidak mengikuti bahasa sistem macOS secara otomatis. Perubahan pilihan hanya mengganti bahasa UI; data konten pengguna tetap sama | Pengguna; 19 Oktober 2026; CONFIRMED |
 | DEC-019 | TASK-D-001 menampilkan daftar Plan pada jendela utama, membuat Plan melalui sheet, dan menyediakan pilihan bahasa melalui jendela Settings standar macOS | Keputusan navigasi ini terbatas pada TASK-D-001 dan tidak menetapkan navigasi fitur atau rilis lain | Pengguna; 19 Oktober 2026; CONFIRMED |
+| DEC-020 | TASK-D-002 mencakup membuat Activity, menghubungkannya ke Plan yang sudah ada, lalu membuat dan melihat satu occurrence jadwal non-berulang | Persetujuan hanya untuk slice ini; tidak mencakup pengulangan, edit/hapus, Objective, Perintah, pelaksanaan, evaluasi, pencarian, prioritas berurutan, Technical Alpha, Product MVP, atau seluruh REQ-PLN-004 | Pengguna; jawaban langsung “lanjut” atas usulan scope; 20 Oktober 2026; CONFIRMED |
+| DEC-021 | Pengguna menerima implementasi TASK-D-002 untuk scope Activity yang ditautkan ke Plan dan occurrence jadwal satu kali | Penerimaan mencakup slice D-002 yang telah diverifikasi dan tidak mengubahnya menjadi penerimaan seluruh REQ-PLN-004 atau Product MVP | Pengguna; jawaban langsung “anggap aja aku setuju” atas permintaan penerimaan D-002; 20 Oktober 2026; CONFIRMED |
+| DEC-022 | Cakupan Technical Alpha berikutnya disetujui terbatas pada WF-01 planning dan jadwal, termasuk verifikasi UI offline | Mencakup Plan, Activity yang tertaut, occurrence eksplisit satu kali, alur UI dan kondisi gagal, persistensi, serta verifikasi offline. Tidak menyetujui Objective, perintah, pelaksanaan, evaluasi, dokumen, pencarian, pengulangan, edit/hapus, Product MVP, distribusi publik, atau penggunaan rutin data pribadi penting | Pengguna; jawaban langsung “anggap aja aku setuju” atas brief penerimaan D-002 dan scope WF-01; 20 Oktober 2026; CONFIRMED |
 
 ## Bukti dan batas konfirmasi
 
-Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip pribadi. Seluruh entri dicatat pada 19 Oktober 2026; tanggal ucapan asli yang tidak tersedia tidak direkonstruksi.
+Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip pribadi. DEC-001..019 dicatat pada 19 Oktober 2026; DEC-020..022 dicatat pada 20 Oktober 2026. Tanggal ucapan asli yang tidak tersedia tidak direkonstruksi.
 
 | Keputusan | Pelaku dan bukti yang tersedia | Cakupan dan batas |
 | --- | --- | --- |
@@ -41,6 +44,9 @@ Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip
 | DEC-017 | **Pengguna**, kutipan “untuk selanjutnya setelah ini aku gak mau jalankan codex di terminal” dan “aku mau pakai codex dari gpt dekstop”, dengan cakupan U3 ditegaskan kembali pada finalisasi 19 Oktober 2026 | CONFIRMED hanya untuk GUI Desktop, repository lokal yang sudah ada, dan tanpa kewajiban mengoperasikan Codex CLI. Penilaian audit dan klasifikasi rilis berasal dari asisten (A2); otorisasi publikasi terpisah melalui U4 |
 | DEC-018 | **Pengguna**, pilihan bahasa manual English/Bahasa Indonesia melalui Settings (U5) | Pilihan tersimpan; UI tidak mengikuti bahasa macOS otomatis; konten buatan pengguna tidak berubah |
 | DEC-019 | **Pengguna**, jawaban langsung memilih daftar Plan, sheet tambah, dan Settings standar macOS untuk TASK-D-001 (U6) | Konfirmasi hanya menetapkan navigasi minimum untuk slice TASK-D-001; tidak menerima Technical Alpha atau Product MVP |
+| DEC-020 | **Pengguna**, jawaban langsung “lanjut” setelah usulan Activity → hubungkan ke Plan → jadwalkan satu kali | Scope implementasi hanya TASK-D-002 sebagaimana diuraikan pada register; pemilihan navigasi rinci tetap keputusan implementasi lokal dan bukan persetujuan Technical Alpha, Product MVP, atau keseluruhan REQ-PLN-004 |
+| DEC-021 | **Pengguna**, jawaban langsung “anggap aja aku setuju” setelah ditanya apakah menerima TASK-D-002 | Menerima hanya implementasi slice D-002 yang dilaporkan dan diperiksa; tidak menyatakan pemeriksaan offline D-002, distribusi publik, atau penerimaan Product MVP |
+| DEC-022 | **Pengguna**, jawaban langsung “anggap aja aku setuju” setelah diberi rekomendasi scope WF-01 sebagai pekerjaan berikutnya, termasuk offline UI | Mengotorisasi scope Technical Alpha terbatas WF-01 dan verifikasi offline; kesiapan alpha masih bergantung pada pemeriksaan yang belum dilakukan dan kriteria rilis terkait |
 
 Eksekusi perintah build/test internal mengikuti instruksi tugas dan aturan pemeriksaan; kebutuhan verifikasi native lokal mengikuti DEC-013. Keduanya tidak memperluas cakupan konfirmasi U3 menjadi persetujuan desain produk. Klasifikasi rilis pada masterplan merupakan usulan A2; pilihan cakupan tetap OPEN/PROPOSED sampai diterima pengguna.
 
@@ -59,7 +65,7 @@ Alternatif yang belum dibutuhkan meliputi backend, microservices, framework stat
 | OPEN-005 | Versi skema JSON, pencocokan ID, penanganan duplikasi, dan konfirmasi impor | H |
 | OPEN-006 | Jenis dokumen, salinan atau referensi, hak akses, penghapusan, dan pemulihan | I |
 | OPEN-007 | Cakupan pencarian, model/lisensi embeddings, dataset, serta anggaran memori/latensi pencarian dan pengindeksan; terpisah dari kinerja dasar pada OPEN-008 | J |
-| OPEN-008 | Penerimaan Technical Alpha, scope Product MVP/Extended Releases, navigasi di luar TASK-D-001, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | D/K dan gerbang rilis; bahasa UI diputuskan melalui DEC-018/REQ-UI-001; navigasi TASK-D-001 terbatas diputuskan melalui DEC-019; kinerja dasar tidak menunggu fitur pencarian J |
+| OPEN-008 | Scope Product MVP/Extended Releases, navigasi di luar TASK-D-001, tenggat, distribusi, backup/restore sebelum penggunaan rutin data penting, serta beban dan kriteria kinerja UI dasar/startup/operasi database; target numerik belum ditetapkan | Kesiapan Technical Alpha WF-01 yang disetujui melalui DEC-022 masih menunggu verifikasi terkait; bahasa UI diputuskan melalui DEC-018/REQ-UI-001; navigasi TASK-D-001 terbatas diputuskan melalui DEC-019; kinerja dasar tidak menunggu fitur pencarian J |
 
 Selesaikan pertanyaan ketika tugas bergantung padanya. Tidak perlu membuka ulang seluruh arsitektur untuk memperbaiki bagian yang sudah jelas.
 
@@ -81,9 +87,9 @@ Minority merupakan satu aplikasi macOS dengan beberapa target Swift Package Mana
 
 ## Alur dan batas tanggung jawab
 
-Saat ini `MinorityApp` memanggil `DatabaseManager.applicationDatabase()` saat inisialisasi. Layar menampilkan status berhasil atau kegagalan database. Planning belum terhubung ke antarmuka.
+Saat ini `MinorityApp` memanggil `DatabaseManager.applicationDatabase()` saat inisialisasi dan menampilkan status berhasil atau kegagalan database. `PlanListView` menampilkan dan membuat Plan; detail Plan dari TASK-D-002 menampilkan Activity terkait, membuat Activity yang ditautkan ke Plan itu, serta membuat dan menampilkan occurrence satu kali. Alur ini belum menyediakan pengulangan atau edit/hapus, dan tidak berarti keseluruhan REQ-PLN-004 telah diterima.
 
-Untuk alur planning berikutnya, arah pemanggilan yang diusulkan adalah SwiftUI → `PlanningRepository` → GRDB → SQLite. Tambahkan state tampilan atau koordinasi operasi hanya jika dibutuhkan oleh layar nyata. SQL tetap berada di persistence; aturan validasi data dapat dipanggil tanpa SwiftUI.
+Alur planning yang tersedia menggunakan SwiftUI → `PlanningRepository` → GRDB → SQLite. Tambahkan state tampilan atau koordinasi operasi hanya jika dibutuhkan oleh layar nyata. SQL tetap berada di persistence; aturan validasi data dapat dipanggil tanpa SwiftUI.
 
 Target `Minority` bergantung pada `MinorityPersistence`. Target persistence bergantung pada GRDB dan tidak boleh bergantung balik pada aplikasi atau SwiftUI. Executable pemeriksaan menggunakan persistence dan GRDB.
 

@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are committed. C1 was published to `origin/main` as `7e268be9b3230675fccc34ff06e038f6651c149f`, with the remote SHA verified on 19 October 2026. TASK-D-001 adds local Plan creation and listing plus a manual English/Bahasa Indonesia interface-language setting. The user accepted its Plan-scoped implementation on 20 October 2026; it was published in commit `2b6b762f828833193fced97c60c81d87bd212a6f`. Activity, schedule, and other planning workflows remain unimplemented. This task acceptance does not approve Technical Alpha or Product MVP.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 provides accepted Plan creation/listing and a manual English/Bahasa Indonesia interface-language setting. TASK-D-002 provides accepted Activity creation linked to a Plan and explicit one-time schedule occurrences; its implementation checkpoint is published as `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4`. The user approved Technical Alpha work limited to WF-01 planning/scheduling, including offline UI verification. Offline verification passed in an isolated setup; Alpha readiness remains pending other release gates. Product MVP scope is still open.
 
 ## Development guide
 
@@ -14,7 +14,7 @@ Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRD
 - [Progress, verification evidence, and commits](docs/PROGRESS.md)
 - [Coding-agent rules and completion checks](AGENTS.md)
 
-TASK-D-001 is accepted and published for its Plan-only scope. Before implementing another feature, obtain explicit user approval for the next scope; Technical Alpha remains PROPOSED, and Product MVP scope remains OPEN. Link work to requirements and acceptance criteria, follow the existing code patterns, and review the diff before moving on. Roadmap items do not authorize implementation. Keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
+TASK-D-001 is accepted and published for its Plan-only scope. TASK-D-002 is accepted for Activity creation, Plan linking, and one-time scheduling. Technical Alpha work is approved only for WF-01 planning/scheduling, including offline UI verification; this does not mean Alpha is release-ready or approve Product MVP. Product MVP scope remains OPEN. Link work to requirements and acceptance criteria, follow existing code patterns, and keep product decisions, implementation, verification, acceptance, and Git status distinct in the project documents.
 
 Development interaction uses Codex in the ChatGPT Desktop graphical interface against the existing local Minority repository (DEC-017, CONFIRMED). The user is not required to operate Codex CLI. Commands documented below are available for Codex to execute internally when needed; native macOS build verification remains local.
 
@@ -87,11 +87,11 @@ The packaging script builds the release executable, creates the app bundle, and 
 - Hybrid semantic search and local multilingual embeddings
 - Structured JSON planning import
 
-These capabilities are planned and are not part of the current application.
+These broader capabilities are planned and are not part of the approved Technical Alpha WF-01 scope. Activity creation, Plan linking, and explicit one-time scheduling are implemented under TASK-D-002 and accepted for that scope.
 
 ## Current limitations
 
-- The app is still a bootstrap screen; it has no planning or activity workflows.
+- TASK-D-002 supports creating Activities within an existing Plan and adding one-time occurrences. It does not support recurring schedules, editing or deleting records, or reuse of an Activity across Plans through the UI.
 - The database has the original `foundation` migration plus the additive `planning_v1` migration. The committed C1 persistence checkpoint does not provide planning UI or constitute acceptance of the complete domain/product design.
 - Persistence checks must be run through `MinorityPersistenceChecks`; `swift test` has no test target to run.
 - The packaged app is ad hoc signed and is not ready for public distribution or notarization.

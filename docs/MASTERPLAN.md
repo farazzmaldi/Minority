@@ -1,6 +1,6 @@
 # Minority — masterplan
 
-Versi baseline 0.3 · 19 Oktober 2026 · Prioritas saat ini: keputusan eksplisit atas cakupan Technical Alpha atau pekerjaan berikutnya; TASK-D-001 diterima terbatas pada alur Plan, Product MVP belum disetujui. Kesimpulan audit dokumentasi merupakan penilaian asisten; Product MVP belum disetujui.
+Versi baseline 0.3 · 19 Oktober 2026 · TASK-D-001 dan TASK-D-002 diterima pengguna untuk scope terbatasnya. Scope Technical Alpha disetujui hanya untuk WF-01 planning/jadwal dengan pemeriksaan UI offline; kesiapan rilis masih menunggu verifikasi. Product MVP belum disetujui. Kesimpulan audit dokumentasi merupakan penilaian asisten.
 
 Dokumen ini menyatukan arah proyek dari kode dan riwayat yang diberikan pengguna. Cakupan yang belum diputuskan tetap terbuka. Penulisan masterplan tidak merupakan persetujuan otomatis atas fitur, formula, atau seluruh rancangan domain.
 
@@ -33,7 +33,9 @@ Kebutuhan tidak disalin menjadi spesifikasi berbeda di setiap dokumen. Roadmap m
 - **U4 — Otorisasi finalisasi langsung pengguna, 19 Oktober 2026:** koreksi provenance; verifikasi, commit, dan push C1 secara terpisah; sinkronkan lalu commit/push G0; periksa CI dan catat hasilnya melalui commit dokumentasi terpisah bila diperlukan. Otorisasi ini menerima publikasi checkpoint, tanpa menyetujui Product MVP atau memulai fitur baru.
 - **U5 — Keputusan bahasa UI langsung pengguna, 19 Oktober 2026:** Minority mendukung English dan Bahasa Indonesia; pengguna memilih bahasa secara manual melalui Settings; pilihan tersimpan antar-peluncuran; bahasa tidak mengikuti system language macOS; dan pergantian bahasa tidak mengubah konten buatan pengguna. Dicatat sebagai `DEC-018`/`REQ-UI-001`; tidak mengotorisasi implementasi lokalisasi.
 - **U6 — Otorisasi TASK-D-001 dan keputusan navigasi terbatas, 19 Oktober 2026:** pengguna meminta implementasi pembuatan/daftar Plan dan pengaturan bahasa, lalu memilih daftar Plan, sheet tambah, dan jendela Settings standar macOS. Dicatat sebagai `DEC-019`. Otorisasi ini hanya untuk TASK-D-001 dan tidak menerima kandidat Technical Alpha atau Product MVP.
-- **K1 — Repository dan checkpoint:** dasar dokumentasi awal `3c668f25e39854ec8d6ba544453e2fa7e6bd74cd`; C1 kemudian di-commit dan dipublikasikan sebagai `7e268be9b3230675fccc34ff06e038f6651c149f`. Remote `main` diverifikasi menunjuk SHA C1 pada 19 Oktober 2026. Status publikasi governance dan CI dicatat di `PROGRESS.md`.
+- **U7 — Otorisasi TASK-D-002, 20 Oktober 2026:** pengguna menjawab “lanjut” atas scope Activity → hubungkan ke Plan → jadwalkan satu kali. Dicatat sebagai `DEC-020`; hanya menyetujui slice TASK-D-002, bukan Technical Alpha, Product MVP, atau seluruh REQ-PLN-004.
+- **U8 — Penerimaan TASK-D-002 dan persetujuan scope WF-01, 20 Oktober 2026:** pengguna menjawab “anggap aja aku setuju” setelah diminta menerima implementasi D-002 dan menyetujui WF-01 sebagai cakupan berikutnya, termasuk pemeriksaan offline UI. Dicatat sebagai `DEC-021`/`DEC-022`. Ini menerima D-002 dan menyetujui implementasi/verifikasi Technical Alpha terbatas WF-01; belum menyatakan Alpha siap rilis, tidak menyetujui Product MVP, distribusi publik, atau penggunaan rutin data pribadi penting.
+- **K1 — Repository dan checkpoint:** dasar dokumentasi awal `3c668f25e39854ec8d6ba544453e2fa7e6bd74cd`; C1 dipublikasikan sebagai `7e268be9b3230675fccc34ff06e038f6651c149f`; TASK-D-002 dipublikasikan sebagai `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4` dan remote `main` diverifikasi menunjuk SHA tersebut pada 20 Oktober 2026. Status publikasi governance dan CI dicatat di `PROGRESS.md`.
 - **H1 — Riwayat lampiran:** percakapan tentang Foundation A/B/C1, hybrid Perintah Induk, empat keputusan domain, tiga penyesuaian, dan usulan roadmap. Disampaikan kembali pada 19 Oktober 2026. Teks mengandung laporan serta pernyataan persetujuan asisten; pernyataan tersebut bukan bukti persetujuan langsung pengguna.
 - **V1 — Pemeriksaan G0 awal:** build dan executable persistence dijalankan pada kode lokal sebelum audit. Rinciannya dicatat di `PROGRESS.md`; revisi dokumentasi ini tidak mengulang build aplikasi.
 - **A1 — Audit G0:** audit yang diberikan pengguna pada 19 Oktober 2026, bagian P0-01..03, P1-01..05, dan P2-01..03 beserta instruksi revisi terdahulu yang mempertahankan C1 dan melarang staging/commit/push pada tahap itu. Finalisasi saat ini diotorisasi terpisah melalui U4. Rekomendasi produk dalam audit tetap usulan kecuali konfirmasi spesifik U2.
@@ -65,24 +67,24 @@ Istilah lama **C2 = E**, **C3 = F**, dan **C4 = G**. **C1** tetap berarti model 
 
 ## Strategi rilis
 
-### Technical Alpha — kandidat terbatas, PROPOSED
+### Technical Alpha — WF-01 disetujui, kesiapan rilis belum diverifikasi
 
-Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP dicatat sebagai usulan asisten (A2) untuk **Technical Alpha**, guna memvalidasi fondasi teknis dan alur UI dasar. Alpha dapat divalidasi dengan data uji; penggunaan rutin data pribadi penting tetap harus memenuhi gerbang perlindungan data. Usulan ini belum menetapkan Product MVP.
+Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP awalnya dicatat sebagai usulan asisten (A2). Pengguna kemudian menyetujui cakupan Technical Alpha terbatas pada **WF-01**, termasuk verifikasi UI offline (U8/DEC-022), guna memvalidasi fondasi teknis dan alur UI dasar. Implementasi D-001 dan D-002 tersedia; pemeriksaan offline untuk keseluruhan alur WF-01 masih harus dilakukan. Alpha menggunakan data uji/non-kritis; penggunaan rutin data pribadi penting tetap menunggu gerbang perlindungan data. Persetujuan ini belum menetapkan Product MVP.
 
 | Cakupan kandidat | Acuan dan batas |
 | --- | --- |
 | Alur WF-01 saja: membuat Plan dan Activity, menghubungkan keduanya, membuat occurrence secara eksplisit, lalu melihat data planning kembali | `REQ-PLN-001..004`, `REQ-SCH-001..002`; bukan keputusan untuk menambah Objective atau planning bertingkat |
 | Kondisi kosong, validasi input, kegagalan simpan/baca yang terlihat, dan data tetap tersedia setelah aplikasi dibuka ulang | `REQ-PLN-004`, `REQ-DAT-001..002`; kegagalan tidak ditampilkan sebagai sukses atau hasil kosong |
 | Penggunaan lokal tanpa jaringan setelah aplikasi dan dependensinya tersedia, diverifikasi melalui UI | `REQ-DAT-003`; persistence checks saja tidak cukup |
-| UI mendukung English dan Bahasa Indonesia melalui pilihan manual pada Settings; pilihan tersimpan dan tidak mengubah konten | `REQ-UI-001`; implementasi pilihan bahasa tersedia pada TASK-D-001, penerimaan produk tetap pending |
+| UI mendukung English dan Bahasa Indonesia melalui pilihan manual pada Settings; pilihan tersimpan dan tidak mengubah konten | `REQ-UI-001`; implementasi ini diterima bersama TASK-D-001 untuk scope Plan. TASK-D-002 acceptance melalui DEC-021 terpisah |
 | Validasi awal memakai data uji/non-kritis; penggunaan rutin data pribadi penting menunggu strategi backup, restore, dan upgrade yang sudah diuji | `REQ-REL-001`; batas ini menghindari klaim kesiapan data yang belum terbukti |
 | Aplikasi dapat dijalankan secara lokal untuk evaluasi sesuai cara distribusi yang dipilih | `REQ-FND-001`, `REQ-REL-002`; signing, notarization, target kinerja, dan Product MVP tidak termasuk dalam persetujuan scope ini |
 
-**Di luar kandidat Technical Alpha:** Perintah Induk/Harian, pelaksanaan, evaluasi, impor, dokumen/OCR, pencarian, Objective, prioritas terurut, pengulangan jadwal, dan kebijakan koreksi/hapus. Daftar ini membatasi usulan alpha; keputusan terbuka yang dirujuk pada OPEN-001/002/008 tetap belum diputuskan untuk produk berikutnya. Cakupan tersebut masih PROPOSED sampai pengguna menyetujuinya.
+**Di luar Technical Alpha WF-01:** Perintah Induk/Harian, pelaksanaan, evaluasi, impor, dokumen/OCR, pencarian, Objective, prioritas terurut, pengulangan jadwal, kebijakan koreksi/hapus, distribusi publik, dan penggunaan rutin data pribadi penting. Scope WF-01 disetujui melalui U8/DEC-022. Kesiapan rilis masih menunggu verifikasi offline, penilaian kinerja dasar, dan batas distribusi/evaluasi yang sesuai OPEN-008.
 
 **TASK-D-001 — pembuatan dan daftar Plan:** pengguna secara langsung meminta slice ini, menggunakan `PlanningRepository` yang ada serta pengaturan bahasa pada Settings. Kriteria selesai: Plan valid dapat dibuat dan ditampilkan setelah aplikasi dibuka ulang; input judul/tanggal yang tidak valid dapat diperbaiki; keadaan kosong dibedakan dari kegagalan baca; kegagalan simpan tidak ditampilkan sebagai sukses; pengguna dapat memilih English/Bahasa Indonesia secara manual, pilihan bertahan setelah peluncuran ulang, dan konten buatan pengguna tidak berubah; tidak ada migration atau dependensi baru tanpa kebutuhan yang ditemukan. Navigasi untuk slice ini diputuskan terbatas melalui U6/DEC-019. Otorisasi task tidak menerima kandidat Technical Alpha atau Product MVP dan tidak mencakup edit/hapus.
 
-Keputusan bahasa untuk TASK-D-001 sudah CONFIRMED melalui U5; pola navigasi minimum TASK-D-001 diputuskan melalui U6. Cakupan Technical Alpha tetap PROPOSED sampai pengguna menerimanya secara terpisah. Kebijakan edit/hapus dikecualikan dari slice pertama dan harus diputuskan sebelum cakupan alpha yang lebih luas diterima. Implementasi juga memeriksa kemampuan baca daftar pada repository dan menambahkannya hanya karena alur ini memerlukannya.
+Keputusan bahasa untuk TASK-D-001 sudah CONFIRMED melalui U5; pola navigasi minimum TASK-D-001 diputuskan melalui U6. Scope Technical Alpha WF-01 disetujui melalui U8/DEC-022; kesiapan rilis belum diverifikasi. Kebijakan edit/hapus dikecualikan dari scope ini dan harus diputuskan sebelum cakupan alpha yang lebih luas diterima. Implementasi juga memeriksa kemampuan baca daftar pada repository dan menambahkannya hanya karena alur ini memerlukannya.
 
 ### Product MVP — scope memerlukan persetujuan
 
@@ -101,7 +103,7 @@ Extended Releases memuat kemampuan tambahan yang dipilih melalui roadmap dan per
 - Build serta pemeriksaan persistence lulus pada versi yang akan dirilis; hasil UI, packaging/signing yang relevan, dan hasil GitHub Actions dicatat terpisah. CI disebut lulus setelah ada run berhasil yang menunjuk commit terkait.
 - Pengguna menerima hasil dan keterbatasan rilis. Versi sumber diidentifikasi dengan commit, status publikasi, dan bukti pemeriksaan; tidak ada klaim selesai berdasarkan daftar file saja.
 
-Keputusan rilis yang masih terbuka: penerimaan cakupan Technical Alpha, cakupan Product MVP, pembagian Extended Releases, kebijakan koreksi/hapus, bahasa dan navigasi UI, kriteria kinerja dasar, mekanisme backup/restore, cara distribusi, serta tenggat. Detail terkait merujuk OPEN-001/008 dalam `DECISIONS.md`; pertanyaan yang memengaruhi tugas diselesaikan sebelum implementasi tugas itu dimulai.
+Keputusan yang masih terbuka: cakupan Product MVP, pembagian Extended Releases, kebijakan koreksi/hapus, navigasi di luar TASK-D-001/WF-01, kriteria kinerja dasar, mekanisme backup/restore, cara distribusi, serta tenggat. Scope Technical Alpha WF-01 disetujui melalui DEC-022; kesiapan rilisnya belum ditetapkan. Detail terkait merujuk OPEN-001/008 dalam `DECISIONS.md`.
 
 ## Peta alur produk
 
@@ -142,7 +144,7 @@ Hindari label “milestone selesai” tanpa cakupan. Gunakan kelima dimensi dala
 
 ## Batas implementasi saat ini
 
-Pekerjaan aktif adalah penyusunan G0 dan pencatatan kondisi C1 yang sudah ada. Pengembangan fitur berikutnya dimulai ketika kebutuhan terkait memiliki kriteria penerimaan dan keputusan yang cukup jelas. Jangan melanjutkan C2/E, membuat seluruh tabel rancangan lama, atau memilih model embedding hanya karena tercantum dalam roadmap.
+TASK-D-002 diterima pengguna untuk slice membuat Activity, menghubungkannya ke Plan, dan menjadwalkan occurrence non-berulang. Scope berikutnya, Technical Alpha WF-01, juga disetujui dan mencakup verifikasi offline UI. Lanjutkan implementasi/verifikasi scope ini tanpa memperluasnya ke fitur yang dikecualikan. Persetujuan WF-01 tidak menerima Product MVP atau seluruh requirement planning. Jangan membuat seluruh tabel rancangan lama atau memilih model embedding hanya karena tercantum dalam roadmap.
 
 Stack aktual adalah Swift, SwiftUI, Swift Package Manager, serta SQLite melalui GRDB. Build dan pengemasan native membutuhkan lingkungan macOS yang sesuai. Mesin sasaran MacBook Air M3 dengan RAM 8 GB tercatat di H1, tetapi spesifikasi mesin dan anggaran kinerja belum diverifikasi dalam sesi ini. Hindari menetapkan janji kinerja atau model AI berdasarkan asumsi tersebut.
 
