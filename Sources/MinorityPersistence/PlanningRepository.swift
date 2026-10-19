@@ -167,6 +167,32 @@ public struct PlanningRepository {
         }
     }
 
+    public func activitiesNotLinked(toPlanID planID: UUID) throws -> [Activity] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: """
+                    SELECT activities.id, activities.title, activities.details
+                    FROM activities
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM plan_activities
+                        WHERE plan_activities.activity_id = activities.id
+                            AND plan_activities.plan_id = ?
+                    )
+                    ORDER BY activities.title, activities.id
+                    """,
+                arguments: [planID.uuidString.lowercased()]
+            ).map { row in
+                try Activity(
+                    id: decodedUUID(row["id"]),
+                    title: row["title"],
+                    details: row["details"]
+                )
+            }
+        }
+    }
+
     public func scheduleOccurrences(forActivityID activityID: UUID) throws -> [ScheduleOccurrence] {
         try databaseQueue.read { db in
             try Row.fetchAll(

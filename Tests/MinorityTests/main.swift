@@ -89,7 +89,14 @@ enum DatabaseManagerChecks {
         try require(try repository.plan(id: plan.id) == plan, "Plan creation was not persisted")
         try require(try repository.activity(id: activity.id) == activity, "Activity creation was not persisted")
         try require(try repository.plans() == [secondPlan, plan], "Plans were not listed in a stable date order")
-
+        try require(
+            try repository.activitiesNotLinked(toPlanID: plan.id).map(\.id) == [activity.id],
+            "An activity already linked to a plan was not excluded from available activities"
+        )
+        try require(
+            try repository.activitiesNotLinked(toPlanID: secondPlan.id).map(\.id) == [activity.id, linkedActivity.id],
+            "Activities linked elsewhere were not available to another plan"
+        )
         try require(
             try repository.scheduleOccurrences(forActivityID: activity.id).isEmpty,
             "An activity received a schedule without an explicit scheduling action"
@@ -99,6 +106,10 @@ enum DatabaseManagerChecks {
         let secondLink = try repository.link(activityID: activity.id, toPlanID: secondPlan.id)
         try require(firstLink.activityID == activity.id, "Plan-activity link points to the wrong activity")
         try require(secondLink.activityID == activity.id, "Activity could not be linked to a second plan")
+        try require(
+            try repository.activitiesNotLinked(toPlanID: secondPlan.id).map(\.id) == [linkedActivity.id],
+            "A newly linked activity remained available for a duplicate link"
+        )
         try require(
             Set(try repository.planActivities(forPlanID: plan.id).map(\.activityID)) == Set([activity.id, linkedActivity.id]),
             "Plan-activity relationship was not persisted"

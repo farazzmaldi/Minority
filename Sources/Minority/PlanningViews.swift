@@ -153,11 +153,15 @@ final class PlanDetailModel: ObservableObject {
     let plan: Plan
     private let repository: PlanningRepository
     @Published private(set) var activities: [Activity] = []
+    @Published private(set) var activitiesAvailableToLink: [Activity] = []
     @Published private(set) var occurrences: [UUID: [ScheduleOccurrence]] = [:]
     @Published private(set) var isLoading = true
     @Published private(set) var loadError: String?
     @Published var isShowingActivitySheet = false
+    @Published var isShowingLinkActivitySheet = false
     @Published var activityToSchedule: Activity?
+    @Published var activityIDToLink: UUID?
+    @Published var linkError: String?
 
     init(plan: Plan, databaseManager: DatabaseManager) {
         self.plan = plan
@@ -169,6 +173,7 @@ final class PlanDetailModel: ObservableObject {
         loadError = nil
         do {
             activities = try repository.activities(forPlanID: plan.id)
+            activitiesAvailableToLink = try repository.activitiesNotLinked(toPlanID: plan.id)
             occurrences = try Dictionary(uniqueKeysWithValues: activities.map {
                 ($0.id, try repository.scheduleOccurrences(forActivityID: $0.id))
             })
@@ -181,6 +186,13 @@ final class PlanDetailModel: ObservableObject {
     func createActivity(title: String, details: String) throws {
         let activity = try Activity(title: title, details: details)
         try repository.create(activity, linkedToPlanID: plan.id)
+        load()
+    }
+
+    func linkExistingActivity(id: UUID) throws {
+        try repository.link(activityID: id, toPlanID: plan.id)
+        activityIDToLink = nil
+        linkError = nil
         load()
     }
 
@@ -257,10 +269,19 @@ private struct PlanDetailView: View {
         .navigationTitle(model.plan.title)
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
-                Button {
-                    model.isShowingActivitySheet = true
+                Menu {
+                    Button {
+                        model.isShowingActivitySheet = true
+                    } label: {
+                        Label(language.text("New Activity", "Kegiatan Baru"), systemImage: "plus")
+                    }
+                    Button {
+                        model.isShowingLinkActivitySheet = true
+                    } label: {
+                        Label(language.text("Link Existing Activity", "Tautkan Kegiatan yang Ada"), systemImage: "link")
+                    }
                 } label: {
-                    Label(language.text("New Activity", "Kegiatan Baru"), systemImage: "plus")
+                    Label(language.text("Add Activity", "Tambah Kegiatan"), systemImage: "plus")
                 }
                 .disabled(model.isLoading || model.loadError != nil)
             }
@@ -268,6 +289,9 @@ private struct PlanDetailView: View {
         .task { model.load() }
         .sheet(isPresented: $model.isShowingActivitySheet) {
             CreateActivitySheet(language: language, model: model)
+        }
+        .sheet(isPresented: $model.isShowingLinkActivitySheet) {
+            LinkExistingActivitySheet(language: language, model: model)
         }
         .sheet(item: $model.activityToSchedule) { activity in
             ScheduleOccurrenceSheet(language: language, activity: activity, model: model)
@@ -281,6 +305,100 @@ private struct PlanDetailView: View {
             ""
         }
         return "\(occurrence.scheduledDate)\(times)"
+    }
+}
+
+@MainActor
+private struct LinkExistingActivitySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let language: InterfaceLanguage
+    @ObservedObject var model: PlanDetailModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(language.text("Link Existing Activity", "Tautkan Kegiatan yang Ada"))
+                .font(.title2)
+                .bold()
+            Text(language.text(
+                "Choose an activity to link to \(model.plan.title). The activity remains one shared record.",
+                "Pilih kegiatan untuk ditautkan ke \(model.plan.title). Kegiatan tetap menjadi satu data bersama."
+            ))
+            .foregroundStyle(.secondary)
+
+            if model.activitiesAvailableToLink.isEmpty {
+                ContentUnavailableView(
+                    language.text("No Activities to Link", "Tidak Ada Kegiatan untuk Ditautkan"),
+                    systemImage: "link",
+                    description: Text(language.text(
+                        "Create an activity in another plan first.",
+                        "Buat kegiatan di rencana lain terlebih dahulu."
+                    ))
+                )
+                .frame(minHeight: 150)
+            } else {
+                List {
+                    ForEach(model.activitiesAvailableToLink) { activity in
+                        Button {
+                            model.activityIDToLink = activity.id
+                            model.linkError = nil
+                        } label: {
+                            HStack(spacing: 10) {
+                                Image(systemName: model.activityIDToLink == activity.id ? "largecircle.fill.circle" : "circle")
+                                    .foregroundStyle(model.activityIDToLink == activity.id ? Color.accentColor : Color.secondary)
+                                VStack(alignment: .leading, spacing: 3) {
+                                    Text(activity.title)
+                                    if let details = activity.details {
+                                        Text(details)
+                                            .font(.subheadline)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                                Spacer()
+                            }
+                            .frame(maxWidth: .infinity, alignment: .leading)
+                        }
+                        .buttonStyle(.plain)
+                        .contentShape(Rectangle())
+                    }
+                }
+                .frame(minHeight: 180)
+            }
+
+            if let error = model.linkError {
+                Text("\(language.text("The activity could not be linked:", "Kegiatan tidak dapat ditautkan:")) \(error)")
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
+            }
+
+            HStack {
+                Spacer()
+                Button(language.text("Cancel", "Batal")) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button(language.text("Link Activity", "Tautkan Kegiatan")) {
+                    linkSelectedActivity()
+                }
+                .disabled(model.activityIDToLink == nil || model.activitiesAvailableToLink.isEmpty)
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 460, minHeight: 320)
+        .environment(\.locale, language.locale)
+        .onAppear {
+            model.activityIDToLink = nil
+            model.linkError = nil
+        }
+    }
+
+    private func linkSelectedActivity() {
+        guard let activityID = model.activityIDToLink else { return }
+        model.linkError = nil
+        do {
+            try model.linkExistingActivity(id: activityID)
+            dismiss()
+        } catch {
+            model.linkError = error.localizedDescription
+        }
     }
 }
 
