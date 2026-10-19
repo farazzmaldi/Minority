@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 provides accepted Plan creation/listing and a manual English/Bahasa Indonesia interface-language setting. TASK-D-002 provides accepted Activity creation linked to a Plan and explicit one-time schedule occurrences; its implementation checkpoint is published as `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4`. The user approved Technical Alpha work limited to WF-01 planning/scheduling, including offline UI verification. Offline verification passed in an isolated setup; Alpha readiness remains pending other release gates. Product MVP scope is still open.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 provides accepted Plan creation/listing and a manual English/Bahasa Indonesia interface-language setting. TASK-D-002 provides accepted Activity creation linked to a Plan and explicit one-time schedule occurrences; its implementation checkpoint is published as `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4`. The approved Technical Alpha WF-01 work now also supports linking an existing Activity to another Plan without copying the Activity record. The complete WF-01 flow passed isolated UI/offline verification; the current WF-01 implementation still awaits user acceptance, and Alpha readiness remains pending other release gates. Product MVP scope is still open.
 
 ## Development guide
 
@@ -91,7 +91,7 @@ These broader capabilities are planned and are not part of the approved Technica
 
 ## Current limitations
 
-- TASK-D-002 supports creating Activities within an existing Plan and adding one-time occurrences. It does not support recurring schedules, editing or deleting records, or reuse of an Activity across Plans through the UI.
-- The database has the original `foundation` migration plus the additive `planning_v1` migration. The committed C1 persistence checkpoint does not provide planning UI or constitute acceptance of the complete domain/product design.
+- TASK-D-002 supports creating Activities within an existing Plan and adding one-time occurrences; the current WF-01 flow also lets users link an existing Activity to another Plan. Recurring schedules and editing or deleting records remain unsupported.
+- The database has the original `foundation` migration plus the additive `planning_v1` migration. The C1 persistence checkpoint predates the Plan and Activity UI added by later tasks; implementation of these slices does not constitute acceptance of the complete domain/product design.
 - Persistence checks must be run through `MinorityPersistenceChecks`; `swift test` has no test target to run.
 - The packaged app is ad hoc signed and is not ready for public distribution or notarization.

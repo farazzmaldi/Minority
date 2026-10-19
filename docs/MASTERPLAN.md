@@ -1,6 +1,6 @@
 # Minority — masterplan
 
-Versi baseline 0.3 · 19 Oktober 2026 · TASK-D-001 dan TASK-D-002 diterima pengguna untuk scope terbatasnya. Scope Technical Alpha disetujui hanya untuk WF-01 planning/jadwal dengan pemeriksaan UI offline; kesiapan rilis masih menunggu verifikasi. Product MVP belum disetujui. Kesimpulan audit dokumentasi merupakan penilaian asisten.
+Versi baseline 0.3 · 19 Oktober 2026 · TASK-D-001 dan TASK-D-002 diterima pengguna untuk scope terbatasnya. Scope Technical Alpha disetujui hanya untuk WF-01 planning/jadwal dengan pemeriksaan UI offline; verifikasi alur WF-01 lulus, sedangkan kesiapan rilis masih menunggu gerbang OPEN-008. Product MVP belum disetujui. Kesimpulan audit dokumentasi merupakan penilaian asisten.
 
 Dokumen ini menyatukan arah proyek dari kode dan riwayat yang diberikan pengguna. Cakupan yang belum diputuskan tetap terbuka. Penulisan masterplan tidak merupakan persetujuan otomatis atas fitur, formula, atau seluruh rancangan domain.
 
@@ -69,7 +69,7 @@ Istilah lama **C2 = E**, **C3 = F**, dan **C4 = G**. **C1** tetap berarti model 
 
 ### Technical Alpha — WF-01 disetujui, kesiapan rilis belum diverifikasi
 
-Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP awalnya dicatat sebagai usulan asisten (A2). Pengguna kemudian menyetujui cakupan Technical Alpha terbatas pada **WF-01**, termasuk verifikasi UI offline (U8/DEC-022), guna memvalidasi fondasi teknis dan alur UI dasar. Implementasi D-001 dan D-002 tersedia; pemeriksaan offline untuk keseluruhan alur WF-01 masih harus dilakukan. Alpha menggunakan data uji/non-kritis; penggunaan rutin data pribadi penting tetap menunggu gerbang perlindungan data. Persetujuan ini belum menetapkan Product MVP.
+Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP awalnya dicatat sebagai usulan asisten (A2). Pengguna kemudian menyetujui cakupan Technical Alpha terbatas pada **WF-01**, termasuk verifikasi UI offline (U8/DEC-022), guna memvalidasi fondasi teknis dan alur UI dasar. Implementasi D-001 dan D-002 tersedia; alur WF-01 termasuk penautan Activity yang sudah ada ke Plan lain telah diperiksa melalui UI offline (EV-UI-005 di `PROGRESS.md`). Alpha menggunakan data uji/non-kritis; penggunaan rutin data pribadi penting tetap menunggu gerbang perlindungan data. Persetujuan ini belum menetapkan Product MVP.
 
 | Cakupan kandidat | Acuan dan batas |
 | --- | --- |
@@ -80,7 +80,7 @@ Cakupan planning dan penjadwalan lokal yang pada v0.2 disebut Candidate MVP awal
 | Validasi awal memakai data uji/non-kritis; penggunaan rutin data pribadi penting menunggu strategi backup, restore, dan upgrade yang sudah diuji | `REQ-REL-001`; batas ini menghindari klaim kesiapan data yang belum terbukti |
 | Aplikasi dapat dijalankan secara lokal untuk evaluasi sesuai cara distribusi yang dipilih | `REQ-FND-001`, `REQ-REL-002`; signing, notarization, target kinerja, dan Product MVP tidak termasuk dalam persetujuan scope ini |
 
-**Di luar Technical Alpha WF-01:** Perintah Induk/Harian, pelaksanaan, evaluasi, impor, dokumen/OCR, pencarian, Objective, prioritas terurut, pengulangan jadwal, kebijakan koreksi/hapus, distribusi publik, dan penggunaan rutin data pribadi penting. Scope WF-01 disetujui melalui U8/DEC-022. Kesiapan rilis masih menunggu verifikasi offline, penilaian kinerja dasar, dan batas distribusi/evaluasi yang sesuai OPEN-008.
+**Di luar Technical Alpha WF-01:** Perintah Induk/Harian, pelaksanaan, evaluasi, impor, dokumen/OCR, pencarian, Objective, prioritas terurut, pengulangan jadwal, kebijakan koreksi/hapus, distribusi publik, dan penggunaan rutin data pribadi penting. Scope WF-01 disetujui melalui U8/DEC-022 dan pemeriksaan UI offline lulus (EV-UI-005). Kesiapan rilis masih menunggu penilaian kinerja dasar, keputusan distribusi, backup/restore, dan batas terkait OPEN-008.
 
 **TASK-D-001 — pembuatan dan daftar Plan:** pengguna secara langsung meminta slice ini, menggunakan `PlanningRepository` yang ada serta pengaturan bahasa pada Settings. Kriteria selesai: Plan valid dapat dibuat dan ditampilkan setelah aplikasi dibuka ulang; input judul/tanggal yang tidak valid dapat diperbaiki; keadaan kosong dibedakan dari kegagalan baca; kegagalan simpan tidak ditampilkan sebagai sukses; pengguna dapat memilih English/Bahasa Indonesia secara manual, pilihan bertahan setelah peluncuran ulang, dan konten buatan pengguna tidak berubah; tidak ada migration atau dependensi baru tanpa kebutuhan yang ditemukan. Navigasi untuk slice ini diputuskan terbatas melalui U6/DEC-019. Otorisasi task tidak menerima kandidat Technical Alpha atau Product MVP dan tidak mencakup edit/hapus.
 
