@@ -13,6 +13,7 @@ enum DatabaseManagerChecks {
         try checkEvaluationPersistence()
         try checkPlanningJSONImport()
         try checkDocumentPersistence()
+        try checkApplicationDataReset()
         try checkSearchIndex()
         try checkBackupRestoreAndIntegrity()
         try checkUpgradeFromPopulatedPlanningDatabase()
@@ -81,6 +82,37 @@ enum DatabaseManagerChecks {
             "Document metadata did not survive reopening"
         )
         try require(try Data(contentsOf: reopenedRepository.fileURL(for: document)) == Data(contents.utf8), "Managed document copy did not survive reopening")
+    }
+
+    private static func checkApplicationDataReset() throws {
+        let root = FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString, isDirectory: true)
+        defer { try? FileManager.default.removeItem(at: root) }
+        let supportDirectory = root.appendingPathComponent("Application Support/Minority", isDirectory: true)
+        let databaseURL = supportDirectory.appendingPathComponent("minority.sqlite")
+        let manager = try DatabaseManager(databaseURL: databaseURL)
+        let planning = PlanningRepository(databaseQueue: manager.databaseQueue)
+        try planning.create(Plan(title: "Reset fixture", startDate: "2026-10-20", endDate: "2026-10-21"))
+
+        let source = root.appendingPathComponent("document.txt")
+        try Data("Reset fixture document".utf8).write(to: source)
+        let documents = DocumentRepository(databaseQueue: manager.databaseQueue, applicationSupportDirectory: supportDirectory)
+        _ = try documents.add(from: source, mediaType: "text/plain", extractedText: "Reset fixture document")
+
+        let exportedBackup = root.appendingPathComponent("Exported.minoritybackup", isDirectory: true)
+        try FileManager.default.createDirectory(at: exportedBackup, withIntermediateDirectories: true)
+        let resetManager = try ApplicationDataResetManager(applicationSupportDirectory: supportDirectory)
+        try resetManager.reset(databaseManager: manager)
+
+        try require(!FileManager.default.fileExists(atPath: supportDirectory.path),
+                    "Application data reset left the database or managed documents behind")
+        try require(FileManager.default.fileExists(atPath: exportedBackup.path),
+                    "Application data reset removed an exported backup outside Application Support")
+        do {
+            _ = try ApplicationDataResetManager(applicationSupportDirectory: root)
+            throw CheckFailure(description: "Application data reset accepted a directory outside Minority's Application Support")
+        } catch ApplicationDataResetError.invalidApplicationDirectory {
+            // Expected: reset is restricted to the app's own data directory.
+        }
     }
 
     private static func checkSearchIndex() throws {

@@ -1,3 +1,4 @@
+import AppKit
 import Combine
 import SwiftUI
 import MinorityPersistence
@@ -101,6 +102,10 @@ final class PlanListModel: ObservableObject {
     }
 
     func searchDatabaseManager() -> DatabaseManager {
+        databaseManager
+    }
+
+    func databaseManagerForSettings() -> DatabaseManager {
         databaseManager
     }
 
@@ -1390,8 +1395,57 @@ private struct CreatePlanSheet: View {
 }
 
 @MainActor
+final class DataResetSettingsModel: ObservableObject {
+    private let databaseManager: DatabaseManager?
+    private let dataResetManager: ApplicationDataResetManager?
+    @Published var isShowingConfirmation = false
+    @Published private(set) var isResetting = false
+    @Published var error: String?
+
+    var canReset: Bool { dataResetManager != nil }
+
+    init(databaseManager: DatabaseManager?, dataResetManager: ApplicationDataResetManager?) {
+        self.databaseManager = databaseManager
+        self.dataResetManager = dataResetManager
+    }
+
+    func reset() {
+        guard let dataResetManager else { return }
+        guard let bundleIdentifier = Bundle.main.bundleIdentifier else {
+            error = "Minority's application identifier is unavailable, so its preferences were not changed."
+            return
+        }
+        isResetting = true
+        Task {
+            do {
+                let dataResetManager = dataResetManager
+                let databaseManager = databaseManager
+                try await Task.detached(priority: .userInitiated) {
+                    try dataResetManager.reset(databaseManager: databaseManager)
+                }.value
+
+                UserDefaults.standard.removePersistentDomain(forName: bundleIdentifier)
+                try? await Task.sleep(for: .milliseconds(300))
+                NSApp.terminate(nil)
+            } catch {
+                self.error = error.localizedDescription
+                isResetting = false
+            }
+        }
+    }
+}
+
+@MainActor
 struct LanguageSettingsView: View {
     @AppStorage("minority.interface-language") private var languageRawValue = InterfaceLanguage.english.rawValue
+    @StateObject private var resetModel: DataResetSettingsModel
+
+    init(databaseManager: DatabaseManager?, dataResetManager: ApplicationDataResetManager?) {
+        _resetModel = StateObject(wrappedValue: DataResetSettingsModel(
+            databaseManager: databaseManager,
+            dataResetManager: dataResetManager
+        ))
+    }
 
     private var language: InterfaceLanguage {
         InterfaceLanguage(rawValue: languageRawValue) ?? .english
@@ -1404,10 +1458,48 @@ struct LanguageSettingsView: View {
                     Text(option.name).tag(option.rawValue)
                 }
             }
+
+            Section(language.text("Data and Settings", "Data dan Pengaturan")) {
+                Text(language.text(
+                    "Permanently deletes all Minority data on this Mac, including plans, records, imported documents, and local recovery files, and resets the interface language. Exported backups in other folders are not deleted. This cannot be undone.",
+                    "Menghapus permanen seluruh data Minority di Mac ini, termasuk rencana, catatan, dokumen impor, dan berkas pemulihan lokal, serta mereset bahasa antarmuka. Cadangan ekspor di folder lain tidak dihapus. Tindakan ini tidak dapat dibatalkan."
+                ))
+                .font(.callout)
+
+                Button(language.text("Reset All Data and Settings…", "Reset Semua Data dan Pengaturan…"), role: .destructive) {
+                    resetModel.isShowingConfirmation = true
+                }
+                .disabled(!resetModel.canReset || resetModel.isResetting)
+                if resetModel.isResetting {
+                    ProgressView(language.text("Resetting Minority…", "Mereset Minority…"))
+                }
+            }
         }
         .padding(24)
-        .frame(width: 420)
+        .frame(width: 520)
         .environment(\.locale, language.locale)
+        .confirmationDialog(
+            language.text("Permanently erase all Minority data?", "Hapus permanen seluruh data Minority?"),
+            isPresented: $resetModel.isShowingConfirmation,
+            titleVisibility: .visible
+        ) {
+            Button(language.text("Erase All Data and Settings", "Hapus Semua Data dan Pengaturan"), role: .destructive) {
+                resetModel.reset()
+            }
+            Button(language.text("Cancel", "Batal"), role: .cancel) {}
+        } message: {
+            Text(language.text(
+                "Your local database, imported documents, local recovery files, and language preference will be permanently removed. Exported backups elsewhere will remain. Minority will quit when the reset finishes.",
+                "Database lokal, dokumen impor, berkas pemulihan lokal, dan pilihan bahasa akan dihapus permanen. Cadangan ekspor di tempat lain tetap ada. Minority akan ditutup setelah reset selesai."
+            ))
+        }
+        .alert(language.text("Reset Failed", "Reset Gagal"), isPresented: Binding(
+            get: { resetModel.error != nil }, set: { if !$0 { resetModel.error = nil } }
+        )) {
+            Button("OK", role: .cancel) { resetModel.error = nil }
+        } message: {
+            Text(resetModel.error ?? "")
+        }
     }
 }
 

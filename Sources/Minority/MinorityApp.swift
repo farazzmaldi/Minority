@@ -4,9 +4,11 @@ import MinorityPersistence
 @main
 struct MinorityApp: App {
     private let planListModel: PlanListModel?
+    private let dataResetManager: ApplicationDataResetManager?
     private let initializationError: String?
 
     init() {
+        dataResetManager = try? ApplicationDataResetManager.applicationManager()
         do {
             let databaseManager = try DatabaseManager.applicationDatabase()
             planListModel = PlanListModel(databaseManager: databaseManager)
@@ -30,7 +32,7 @@ struct MinorityApp: App {
         }
 
         Settings {
-            LanguageSettingsView()
+            LanguageSettingsView(databaseManager: planListModel?.databaseManagerForSettings(), dataResetManager: dataResetManager)
         }
     }
 }
