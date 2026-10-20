@@ -185,4 +185,4 @@ Pembersihan lokal yang rutin dan perbaikan yang sudah diizinkan tidak memerlukan
 | OCR dan embeddings membebani mesin sasaran | Ukur terhadap dataset dan anggaran yang disepakati sebelum memilih solusi |
 | Dokumentasi menjadi pekerjaan ganda | Satu tempat per informasi; revisi hanya bagian yang terdampak |
 
-Kesiapan rilis fungsional dinilai dari cakupan yang disetujui, alur yang benar-benar dapat dipakai, integritas data, dan pemeriksaan yang tercatat. Kandidat Technical Alpha tersedia di atas; cakupan Product MVP, pembagian Extended Releases, dan tenggat masih terbuka.
+Kesiapan rilis fungsional dinilai dari cakupan yang disetujui, alur yang benar-benar dapat dipakai, integritas data, dan pemeriksaan yang tercatat. Cakupan Product MVP disetujui melalui DEC-025, tetapi implementasi, penerimaan, dan kesiapan rilisnya belum selesai. Pembagian Extended Releases dan tenggat masih terbuka.
