@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented locally in the single Minority app. Current local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
+Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented in the single Minority app and published on `main` at `81aaf7f` (full evidence in project progress). Current local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
 
 ## Development guide
 
