@@ -1,6 +1,6 @@
 # Minority — keputusan dan arsitektur
 
-Dokumen awal dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama; DEC-020..022 ditambahkan pada 20 Oktober 2026. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/U5/U6/U7/U8/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
+Dokumen awal dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta finalisasi G0 pada tanggal yang sama; DEC-020..023 ditambahkan pada 20 Oktober 2026. Tanggal keputusan dalam riwayat tidak selalu tersedia; tanggal pencatatan ini bukan tanggal persetujuan. Sumber U1/U2/U3/U4/U5/U6/U7/U8/U9/K1/H1/A1/A2 dan status dijelaskan di [masterplan](MASTERPLAN.md). `OBSERVED` menunjukkan struktur aktual dalam kode, tanpa mengklaim persetujuan produk.
 
 ## Register keputusan
 
@@ -28,10 +28,11 @@ Dokumen awal dicatat pada 19 Oktober 2026 dan direvisi berdasarkan audit serta f
 | DEC-020 | TASK-D-002 mencakup membuat Activity, menghubungkannya ke Plan yang sudah ada, lalu membuat dan melihat satu occurrence jadwal non-berulang | Persetujuan hanya untuk slice ini; tidak mencakup pengulangan, edit/hapus, Objective, Perintah, pelaksanaan, evaluasi, pencarian, prioritas berurutan, Technical Alpha, Product MVP, atau seluruh REQ-PLN-004 | Pengguna; jawaban langsung “lanjut” atas usulan scope; 20 Oktober 2026; CONFIRMED |
 | DEC-021 | Pengguna menerima implementasi TASK-D-002 untuk scope Activity yang ditautkan ke Plan dan occurrence jadwal satu kali | Penerimaan mencakup slice D-002 yang telah diverifikasi dan tidak mengubahnya menjadi penerimaan seluruh REQ-PLN-004 atau Product MVP | Pengguna; jawaban langsung “anggap aja aku setuju” atas permintaan penerimaan D-002; 20 Oktober 2026; CONFIRMED |
 | DEC-022 | Cakupan Technical Alpha berikutnya disetujui terbatas pada WF-01 planning dan jadwal, termasuk verifikasi UI offline | Mencakup Plan, Activity yang tertaut, occurrence eksplisit satu kali, alur UI dan kondisi gagal, persistensi, serta verifikasi offline yang kemudian dicatat pada EV-UI-004/005. Tidak menyetujui Objective, perintah, pelaksanaan, evaluasi, dokumen, pencarian, pengulangan, edit/hapus, Product MVP, distribusi publik, atau penggunaan rutin data pribadi penting | Pengguna; jawaban langsung “anggap aja aku setuju” atas brief penerimaan D-002 dan scope WF-01; 20 Oktober 2026; CONFIRMED |
+| DEC-023 | Pengguna menerima hasil implementasi dan verifikasi WF-01 untuk cakupan terbatas yang disetujui melalui DEC-022 | Penerimaan meliputi alur Plan, Activity, penautan Activity yang sudah ada, occurrence satu kali yang eksplisit, persistensi, kondisi gagal, dan pemeriksaan UI offline yang tercatat. Ini tidak menyatakan Technical Alpha siap rilis, tidak menyetujui Product MVP, dan tidak mengubah status seluruh REQ-PLN-004 | Pengguna; instruksi langsung untuk mencatat penerimaan WF-01 setelah memverifikasi ulang bukti; 20 Oktober 2026; CONFIRMED |
 
 ## Bukti dan batas konfirmasi
 
-Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip pribadi. DEC-001..019 dicatat pada 19 Oktober 2026; DEC-020..022 dicatat pada 20 Oktober 2026. Tanggal ucapan asli yang tidak tersedia tidak direkonstruksi.
+Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip pribadi. DEC-001..019 dicatat pada 19 Oktober 2026; DEC-020..023 dicatat pada 20 Oktober 2026. Tanggal ucapan asli yang tidak tersedia tidak direkonstruksi.
 
 | Keputusan | Pelaku dan bukti yang tersedia | Cakupan dan batas |
 | --- | --- | --- |
@@ -47,6 +48,7 @@ Ringkasan berikut cukup untuk memahami sumber keputusan tanpa menyalin transkrip
 | DEC-020 | **Pengguna**, jawaban langsung “lanjut” setelah usulan Activity → hubungkan ke Plan → jadwalkan satu kali | Scope implementasi hanya TASK-D-002 sebagaimana diuraikan pada register; pemilihan navigasi rinci tetap keputusan implementasi lokal dan bukan persetujuan Technical Alpha, Product MVP, atau keseluruhan REQ-PLN-004 |
 | DEC-021 | **Pengguna**, jawaban langsung “anggap aja aku setuju” setelah ditanya apakah menerima TASK-D-002 | Menerima hanya implementasi slice D-002 yang dilaporkan dan diperiksa; tidak menyatakan pemeriksaan offline D-002, distribusi publik, atau penerimaan Product MVP |
 | DEC-022 | **Pengguna**, jawaban langsung “anggap aja aku setuju” setelah diberi rekomendasi scope WF-01 sebagai pekerjaan berikutnya, termasuk offline UI | Mengotorisasi scope Technical Alpha terbatas WF-01 dan verifikasi offline. Pemeriksaan UI offline WF-01 tercatat lulus pada EV-UI-004/005; kesiapan rilis masih menunggu kriteria kinerja, distribusi, backup/restore, dan keputusan OPEN-008 |
+| DEC-023 | **Pengguna**, instruksi langsung pada 20 Oktober 2026 untuk mencatat penerimaan WF-01 setelah memeriksa ulang bukti | Menerima hasil WF-01 saja. Tidak menyatakan Technical Alpha siap rilis, tidak menyetujui Product MVP, dan tidak menaikkan status seluruh REQ-PLN-004 |
 
 Eksekusi perintah build/test internal mengikuti instruksi tugas dan aturan pemeriksaan; kebutuhan verifikasi native lokal mengikuti DEC-013. Keduanya tidak memperluas cakupan konfirmasi U3 menjadi persetujuan desain produk. Klasifikasi rilis pada masterplan merupakan usulan A2; pilihan cakupan tetap OPEN/PROPOSED sampai diterima pengguna.
 

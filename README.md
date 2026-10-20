@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 provides accepted Plan creation/listing and a manual English/Bahasa Indonesia interface-language setting. TASK-D-002 provides accepted Activity creation linked to a Plan and explicit one-time schedule occurrences; its implementation checkpoint is published as `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4`. The approved Technical Alpha WF-01 work now also supports linking an existing Activity to another Plan without copying the Activity record. The complete WF-01 flow passed isolated UI/offline verification; the current WF-01 implementation still awaits user acceptance, and Alpha readiness remains pending other release gates. Product MVP scope is still open.
+Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 provides accepted Plan creation/listing and a manual English/Bahasa Indonesia interface-language setting. TASK-D-002 provides accepted Activity creation linked to a Plan and explicit one-time schedule occurrences; its implementation checkpoint is published as `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4`. Technical Alpha WF-01 adds reuse of an existing Activity across Plans without copying the Activity record. The complete WF-01 flow passed isolated UI/offline verification and was accepted by the user for this limited scope (DEC-023). Alpha readiness remains pending OPEN-008 release gates; Product MVP scope remains open.
 
 ## Development guide
 
