@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented in the single Minority app; the roadmap implementation was published on `main` at `81aaf7f` (full evidence in project progress). Local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
+Foundation A/B/C1 and roadmap D–K have published implementation checkpoints. The latest additions are TASK-H-003 direct JSON copy-paste, published as `46ed695`, and TASK-K-002 confirmed local data reset, published as `062478f`; both are on `main`. GitHub Actions Quality for `062478f` passed (run [39401191951](https://github.com/farazzmaldi/Minority/actions/runs/39401191951)). The H-003 paste preview was checked without confirming Add, and the K-002 reset UI has not been checked directly. Final manual review and user acceptance remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
 
 ## Development guide
 
@@ -34,6 +34,8 @@ The application database is local and requires no network service at runtime. Sw
 ## Build and run
 
 Requirements: macOS 15 or later and a Swift 6 toolchain.
+
+Minority Settings includes an explicitly confirmed reset action. It removes the app's local database, managed documents, recovery files, and preferences. Exported backup packages stored elsewhere remain untouched. Direct UI verification of the reset action is still pending.
 
 Build the package:
 
@@ -98,6 +100,8 @@ The listed roadmap capabilities are implemented in the canonical Minority app an
 ### Planning JSON import format
 
 Import uses the versioned `minority.planning` JSON format. `format` and `version` are required; entity and relationship arrays may be omitted when unused. IDs are UUID strings. Unknown versions, invalid records, missing references, repeated IDs/links, and conflicting existing IDs block the whole import. Exact duplicates are skipped.
+
+From the Plans menu, choose **Prepare JSON with GPT** and copy the prompt. Replace its final placeholder with your planning notes, paste it into GPT, and ask for JSON only. Copy GPT's JSON response, return to Minority, choose **Paste JSON from GPT**, paste with ⌘V, review the records, and choose **Add to Minority**. You do not need to save a file, and Minority does not connect to GPT directly. **Choose JSON File** remains available as an alternative.
 
 ```json
 {
