@@ -91,6 +91,16 @@ public struct DatabaseManager {
                 )
                 """)
         }
+        migrator.registerMigration("execution_v1") { db in
+            try db.execute(sql: """
+                CREATE TABLE execution_records (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    occurrence_id TEXT NOT NULL UNIQUE
+                        REFERENCES schedule_occurrences(id) ON DELETE RESTRICT,
+                    recorded_at REAL NOT NULL
+                )
+                """)
+        }
         return migrator
     }()
 }

@@ -7,6 +7,7 @@ public enum PlanningValidationError: Error, Equatable, LocalizedError {
     case invalidDateRange
     case incompleteTimeRange
     case invalidTimeRange
+    case invalidExecutionTimestamp
 
     public var errorDescription: String? {
         switch self {
@@ -22,6 +23,8 @@ public enum PlanningValidationError: Error, Equatable, LocalizedError {
             return "A scheduled start and end time must both be provided, or both omitted."
         case .invalidTimeRange:
             return "The scheduled end time must be later than its start time on the same date."
+        case .invalidExecutionTimestamp:
+            return "The execution record timestamp is invalid."
         }
     }
 }
@@ -143,6 +146,22 @@ public struct ScheduleOccurrence: Identifiable, Equatable, Sendable {
               (0...59).contains(minute) else {
             throw PlanningValidationError.invalidTime(value)
         }
+    }
+}
+
+public struct ExecutionRecord: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let occurrenceID: UUID
+    public let recordedAt: Date
+
+    public init(id: UUID = UUID(), occurrenceID: UUID, recordedAt: Date) throws {
+        guard recordedAt.timeIntervalSince1970.isFinite else {
+            throw PlanningValidationError.invalidExecutionTimestamp
+        }
+
+        self.id = id
+        self.occurrenceID = occurrenceID
+        self.recordedAt = recordedAt
     }
 }
 

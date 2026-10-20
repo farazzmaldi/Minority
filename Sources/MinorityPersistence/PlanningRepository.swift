@@ -82,6 +82,22 @@ public struct PlanningRepository {
         }
     }
 
+    public func recordExecution(_ record: ExecutionRecord) throws {
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: """
+                    INSERT INTO execution_records (id, occurrence_id, recorded_at)
+                    VALUES (?, ?, ?)
+                    """,
+                arguments: [
+                    record.id.uuidString.lowercased(),
+                    record.occurrenceID.uuidString.lowercased(),
+                    record.recordedAt.timeIntervalSince1970
+                ]
+            )
+        }
+    }
+
     public func plan(id: UUID) throws -> Plan? {
         try databaseQueue.read { db in
             guard let row = try Row.fetchOne(
@@ -214,6 +230,47 @@ public struct PlanningRepository {
                     priority: row["priority"]
                 )
             }
+        }
+    }
+
+    public func executionRecords(forActivityID activityID: UUID) throws -> [ExecutionRecord] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: """
+                    SELECT execution_records.id, execution_records.occurrence_id, execution_records.recorded_at
+                    FROM execution_records
+                    JOIN schedule_occurrences ON schedule_occurrences.id = execution_records.occurrence_id
+                    WHERE schedule_occurrences.activity_id = ?
+                    ORDER BY execution_records.recorded_at, execution_records.id
+                    """,
+                arguments: [activityID.uuidString.lowercased()]
+            ).map { row in
+                try ExecutionRecord(
+                    id: decodedUUID(row["id"]),
+                    occurrenceID: decodedUUID(row["occurrence_id"]),
+                    recordedAt: Date(timeIntervalSince1970: row["recorded_at"])
+                )
+            }
+        }
+    }
+
+    public func executionRecord(forOccurrenceID occurrenceID: UUID) throws -> ExecutionRecord? {
+        try databaseQueue.read { db in
+            guard let row = try Row.fetchOne(
+                db,
+                sql: """
+                    SELECT id, occurrence_id, recorded_at
+                    FROM execution_records
+                    WHERE occurrence_id = ?
+                    """,
+                arguments: [occurrenceID.uuidString.lowercased()]
+            ) else { return nil }
+            return try ExecutionRecord(
+                id: decodedUUID(row["id"]),
+                occurrenceID: decodedUUID(row["occurrence_id"]),
+                recordedAt: Date(timeIntervalSince1970: row["recorded_at"])
+            )
         }
     }
 }

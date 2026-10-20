@@ -155,6 +155,7 @@ final class PlanDetailModel: ObservableObject {
     @Published private(set) var activities: [Activity] = []
     @Published private(set) var activitiesAvailableToLink: [Activity] = []
     @Published private(set) var occurrences: [UUID: [ScheduleOccurrence]] = [:]
+    @Published private(set) var executionRecords: [UUID: ExecutionRecord] = [:]
     @Published private(set) var isLoading = true
     @Published private(set) var loadError: String?
     @Published var isShowingActivitySheet = false
@@ -162,6 +163,7 @@ final class PlanDetailModel: ObservableObject {
     @Published var activityToSchedule: Activity?
     @Published var activityIDToLink: UUID?
     @Published var linkError: String?
+    @Published var executionSaveError: String?
 
     init(plan: Plan, databaseManager: DatabaseManager) {
         self.plan = plan
@@ -177,6 +179,13 @@ final class PlanDetailModel: ObservableObject {
             occurrences = try Dictionary(uniqueKeysWithValues: activities.map {
                 ($0.id, try repository.scheduleOccurrences(forActivityID: $0.id))
             })
+            var recordsByOccurrence: [UUID: ExecutionRecord] = [:]
+            for activity in activities {
+                for record in try repository.executionRecords(forActivityID: activity.id) {
+                    recordsByOccurrence[record.occurrenceID] = record
+                }
+            }
+            executionRecords = recordsByOccurrence
         } catch {
             loadError = error.localizedDescription
         }
@@ -198,6 +207,13 @@ final class PlanDetailModel: ObservableObject {
 
     func schedule(_ occurrence: ScheduleOccurrence) throws {
         try repository.schedule(occurrence)
+        load()
+    }
+
+    func recordExecution(for occurrenceID: UUID) throws {
+        let record = try ExecutionRecord(occurrenceID: occurrenceID, recordedAt: .now)
+        try repository.recordExecution(record)
+        executionSaveError = nil
         load()
     }
 }
@@ -256,9 +272,39 @@ private struct PlanDetailView: View {
                                 .foregroundStyle(.secondary)
                         } else {
                             ForEach(items) { occurrence in
-                                Text(scheduleDescription(occurrence))
-                                    .font(.subheadline)
-                                    .foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 4) {
+                                    Text(scheduleDescription(occurrence))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                    if let record = model.executionRecords[occurrence.id] {
+                                        Label {
+                                            Text("\(language.text("Recorded at", "Catatan dibuat pada")) · \(record.recordedAt.formatted(date: .abbreviated, time: .shortened))")
+                                        } icon: {
+                                            Image(systemName: "checkmark.circle.fill")
+                                        }
+                                        .font(.caption)
+                                    } else {
+                                        HStack {
+                                            Text(language.text("No execution record", "Belum ada catatan pelaksanaan"))
+                                                .font(.caption)
+                                                .foregroundStyle(.secondary)
+                                            Button(language.text("Record as completed", "Catat sudah terlaksana")) {
+                                                do {
+                                                    try model.recordExecution(for: occurrence.id)
+                                                } catch {
+                                                    model.executionSaveError = error.localizedDescription
+                                                }
+                                            }
+                                            .font(.caption)
+                                        }
+                                        Text(language.text(
+                                            "The saved time is when you record this, not when the activity happened.",
+                                            "Waktu yang disimpan adalah saat Anda mencatat, bukan saat kegiatan dilakukan."
+                                        ))
+                                        .font(.caption2)
+                                        .foregroundStyle(.secondary)
+                                    }
+                                }
                             }
                         }
                     }
@@ -295,6 +341,17 @@ private struct PlanDetailView: View {
         }
         .sheet(item: $model.activityToSchedule) { activity in
             ScheduleOccurrenceSheet(language: language, activity: activity, model: model)
+        }
+        .alert(
+            language.text("Execution Record Could Not Be Saved", "Catatan Pelaksanaan Tidak Dapat Disimpan"),
+            isPresented: Binding(
+                get: { model.executionSaveError != nil },
+                set: { if !$0 { model.executionSaveError = nil } }
+            )
+        ) {
+            Button(language.text("OK", "OK"), role: .cancel) { model.executionSaveError = nil }
+        } message: {
+            Text(model.executionSaveError ?? "")
         }
     }
 
@@ -505,7 +562,7 @@ private final class ScheduleCreationForm: ObservableObject {
                     "The end time must be later than the start time.",
                     "Waktu selesai harus setelah waktu mulai."
                 )
-            case .emptyTitle, .invalidDateRange:
+            case .emptyTitle, .invalidDateRange, .invalidExecutionTimestamp:
                 error = language.text("The schedule details are invalid.", "Rincian jadwal tidak valid.")
             }
         } catch let saveError {
@@ -658,7 +715,7 @@ private struct CreatePlanSheet: View {
             language.text("Enter valid start and end dates.", "Masukkan tanggal mulai dan selesai yang valid.")
         case .invalidDateRange:
             invalidDateRangeMessage
-        case .invalidTime, .incompleteTimeRange, .invalidTimeRange:
+        case .invalidTime, .incompleteTimeRange, .invalidTimeRange, .invalidExecutionTimestamp:
             language.text("The plan contains invalid date or time values.", "Rencana berisi tanggal atau waktu yang tidak valid.")
         }
     }

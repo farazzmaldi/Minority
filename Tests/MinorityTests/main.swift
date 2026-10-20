@@ -8,6 +8,7 @@ enum DatabaseManagerChecks {
         try checkDatabaseInitializationReadWriteAndMigrationIdempotency()
         try checkInitializationFailurePreservesExistingData()
         try checkCorePlanningPersistence()
+        try checkUpgradeFromPopulatedPlanningDatabase()
         try checkTransactionRollbackAndErrorPropagation()
         print("Persistence checks passed")
     }
@@ -35,8 +36,8 @@ enum DatabaseManagerChecks {
             try String.fetchAll(db, sql: "SELECT identifier FROM grdb_migrations ORDER BY identifier")
         }
         try require(
-            appliedMigrations == ["foundation", "planning_v1"],
-            "Foundation and planning migrations were not each applied exactly once"
+            appliedMigrations == ["execution_v1", "foundation", "planning_v1"],
+            "Foundation, planning, and execution migrations were not each applied exactly once"
         )
     }
 
@@ -157,6 +158,78 @@ enum DatabaseManagerChecks {
         try require(Set(occurrences.map(\.id)) == Set([firstOccurrence.id, secondOccurrence.id]), "Occurrence IDs were not stable")
         try require(occurrences.first == firstOccurrence, "Scheduled date, time, or priority was not persisted")
 
+        let recordedAt = Date(timeIntervalSince1970: 1_797_123_456.75)
+        let execution = try ExecutionRecord(
+            occurrenceID: firstOccurrence.id,
+            recordedAt: recordedAt
+        )
+        try repository.recordExecution(execution)
+        try require(
+            try repository.executionRecord(forOccurrenceID: firstOccurrence.id) == execution,
+            "Execution record did not preserve its identity, occurrence, and recorded-at timestamp"
+        )
+        try require(
+            try repository.executionRecord(forOccurrenceID: secondOccurrence.id) == nil,
+            "An occurrence without an execution record was reported as recorded"
+        )
+        try require(
+            try repository.executionRecords(forActivityID: activity.id) == [execution],
+            "Execution records were not listed for their activity"
+        )
+
+        do {
+            try repository.recordExecution(
+                ExecutionRecord(occurrenceID: firstOccurrence.id, recordedAt: recordedAt.addingTimeInterval(1))
+            )
+            throw CheckFailure(description: "A duplicate execution record was accepted for one occurrence")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "A duplicate execution record was accepted for one occurrence")
+        } catch is DatabaseError {
+            try require(
+                try repository.executionRecord(forOccurrenceID: firstOccurrence.id) == execution,
+                "A rejected duplicate changed the existing execution record"
+            )
+        }
+
+        do {
+            try manager.databaseQueue.write { db in
+                try db.execute(
+                    sql: "DELETE FROM schedule_occurrences WHERE id = ?",
+                    arguments: [firstOccurrence.id.uuidString.lowercased()]
+                )
+            }
+            throw CheckFailure(description: "An occurrence with an execution record was deleted")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "An occurrence with an execution record was deleted")
+        } catch is DatabaseError {
+            try require(
+                try repository.executionRecord(forOccurrenceID: firstOccurrence.id) == execution,
+                "A rejected occurrence deletion changed its execution record"
+            )
+        }
+
+        do {
+            try repository.recordExecution(
+                ExecutionRecord(occurrenceID: UUID(), recordedAt: recordedAt)
+            )
+            throw CheckFailure(description: "An execution record accepted a missing occurrence")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "An execution record accepted a missing occurrence")
+        } catch is DatabaseError {
+            // Expected: the occurrence foreign key rejects the record.
+        }
+
+        var rejectedInvalidExecutionTimestamp = false
+        do {
+            _ = try ExecutionRecord(
+                occurrenceID: firstOccurrence.id,
+                recordedAt: Date(timeIntervalSince1970: .infinity)
+            )
+        } catch PlanningValidationError.invalidExecutionTimestamp {
+            rejectedInvalidExecutionTimestamp = true
+        }
+        try require(rejectedInvalidExecutionTimestamp, "An invalid execution timestamp was accepted")
+
         var rejectedInvalidDate = false
         do {
             _ = try Plan(title: "Invalid", startDate: "2026-02-30", endDate: "2026-03-01")
@@ -261,8 +334,50 @@ enum DatabaseManagerChecks {
             "Schedule occurrences did not survive database reopening"
         )
         try require(
+            try reopenedRepository.executionRecord(forOccurrenceID: firstOccurrence.id) == execution,
+            "Execution record did not survive database reopening"
+        )
+        try require(
             try reopenedRepository.planActivities(forPlanID: secondPlan.id).map(\.activityID) == [activity.id],
             "Plan-activity link did not survive database reopening"
+        )
+    }
+
+    private static func checkUpgradeFromPopulatedPlanningDatabase() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let databaseURL = directory.appendingPathComponent("upgrade.sqlite")
+        let manager = try DatabaseManager(databaseURL: databaseURL)
+        let repository = PlanningRepository(databaseQueue: manager.databaseQueue)
+        let plan = try Plan(title: "Existing plan", startDate: "2026-10-20", endDate: "2026-10-20")
+        let activity = try Activity(title: "Existing activity")
+        let occurrence = try ScheduleOccurrence(activityID: activity.id, scheduledDate: "2026-10-20")
+        try repository.create(plan)
+        try repository.create(activity, linkedToPlanID: plan.id)
+        try repository.schedule(occurrence)
+
+        try manager.databaseQueue.write { db in
+            try db.execute(sql: "DROP TABLE execution_records")
+            try db.execute(
+                sql: "DELETE FROM grdb_migrations WHERE identifier = ?",
+                arguments: ["execution_v1"]
+            )
+        }
+
+        let upgradedManager = try DatabaseManager(databaseURL: databaseURL)
+        let upgradedRepository = PlanningRepository(databaseQueue: upgradedManager.databaseQueue)
+        try require(try upgradedRepository.plan(id: plan.id) == plan, "Plan data was lost during execution migration")
+        try require(
+            try upgradedRepository.activities(forPlanID: plan.id) == [activity],
+            "Activity data was lost during execution migration"
+        )
+        try require(
+            try upgradedRepository.scheduleOccurrences(forActivityID: activity.id) == [occurrence],
+            "Occurrence data was lost during execution migration"
+        )
+        try require(
+            try upgradedRepository.executionRecord(forOccurrenceID: occurrence.id) == nil,
+            "Migration fabricated an execution record for an existing occurrence"
         )
     }
 
