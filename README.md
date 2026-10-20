@@ -91,12 +91,14 @@ For a scheduled occurrence, the user can explicitly record that it was completed
 - PDFKit and Vision OCR
 - Hybrid semantic search and local multilingual embeddings
 - Structured JSON planning import
+- Objectives shared across Plans
 
-These broader capabilities are planned and are not part of the approved Technical Alpha WF-01 scope. Activity creation, Plan linking, and explicit one-time scheduling are implemented under TASK-D-002 and accepted for that scope.
+These broader capabilities are planned and are not part of the approved Technical Alpha WF-01 scope. Activity creation, Plan linking, explicit one-time scheduling, and Objective management are implemented in the local roadmap work; publication and the remaining stages are tracked in `docs/PROGRESS.md`.
 
 ## Current limitations
 
-- TASK-D-002 supports creating Activities within an existing Plan and adding one-time occurrences; the current WF-01 flow also lets users link an existing Activity to another Plan. Recurring schedules and editing or deleting records remain unsupported.
-- The database has the original `foundation` migration plus additive `planning_v1` and `execution_v1` migrations. The C1 persistence checkpoint predates the Plan and Activity UI added by later tasks; implementation of these slices does not constitute acceptance of the complete domain/product design.
+- Activities can be linked to multiple Plans; schedules are explicit one-time occurrences. Recurrence and editing/deleting Plans, Activities, and occurrences remain unsupported.
+- Objectives can be shared across Plans, edited as one master record, unlinked per Plan, and deleted only when no Plan links remain.
+- The database has the original `foundation` migration plus additive `planning_v1`, `execution_v1`, and `objectives_v1` migrations. These implementation slices do not constitute acceptance of the complete domain/product design.
 - Persistence checks must be run through `MinorityPersistenceChecks`; `swift test` has no test target to run.
 - The packaged app is ad hoc signed and is not ready for public distribution or notarization.

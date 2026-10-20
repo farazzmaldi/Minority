@@ -8,7 +8,9 @@ enum DatabaseManagerChecks {
         try checkDatabaseInitializationReadWriteAndMigrationIdempotency()
         try checkInitializationFailurePreservesExistingData()
         try checkCorePlanningPersistence()
+        try checkSharedObjectivePersistence()
         try checkUpgradeFromPopulatedPlanningDatabase()
+        try checkUpgradeFromPlanningDatabaseBeforeObjectives()
         try checkTransactionRollbackAndErrorPropagation()
         print("Persistence checks passed")
     }
@@ -36,9 +38,77 @@ enum DatabaseManagerChecks {
             try String.fetchAll(db, sql: "SELECT identifier FROM grdb_migrations ORDER BY identifier")
         }
         try require(
-            appliedMigrations == ["execution_v1", "foundation", "planning_v1"],
-            "Foundation, planning, and execution migrations were not each applied exactly once"
+            appliedMigrations == ["execution_v1", "foundation", "objectives_v1", "planning_v1"],
+            "Foundation, planning, execution, and objective migrations were not each applied exactly once"
         )
+    }
+
+    private static func checkSharedObjectivePersistence() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let databaseURL = directory.appendingPathComponent("objectives.sqlite")
+        let manager = try DatabaseManager(databaseURL: databaseURL)
+        let repository = PlanningRepository(databaseQueue: manager.databaseQueue)
+        let firstPlan = try Plan(title: "First Plan", startDate: "2026-10-20", endDate: "2026-10-20")
+        let secondPlan = try Plan(title: "Second Plan", startDate: "2026-10-20", endDate: "2026-10-20")
+        let objective = try Objective(title: "Improve health", details: "Walk regularly")
+        try repository.create(firstPlan)
+        try repository.create(secondPlan)
+        try repository.create(objective, linkedToPlanID: firstPlan.id)
+        try repository.link(objectiveID: objective.id, toPlanID: secondPlan.id)
+
+        try require(try repository.objective(id: objective.id) == objective, "Objective was not persisted")
+        try require(try repository.objectives(forPlanID: firstPlan.id) == [objective], "Objective was not linked to its first plan")
+        try require(try repository.objectives(forPlanID: secondPlan.id) == [objective], "Objective was not shared with its second plan")
+        try require(try repository.objectivesNotLinked(toPlanID: firstPlan.id).isEmpty, "Linked objective remained available to its plan")
+
+        let updatedObjective = try Objective(id: objective.id, title: "Improve wellbeing", details: "Walk most days")
+        try require(try repository.update(updatedObjective), "Existing objective was not updated")
+        try require(
+            try repository.objectives(forPlanID: firstPlan.id) == [updatedObjective]
+                && repository.objectives(forPlanID: secondPlan.id) == [updatedObjective],
+            "Editing a shared objective did not update the same master record for each plan"
+        )
+
+        do {
+            try repository.link(objectiveID: objective.id, toPlanID: firstPlan.id)
+            throw CheckFailure(description: "Duplicate plan-objective link was accepted")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "Duplicate plan-objective link was accepted")
+        } catch is DatabaseError {
+            try require(try repository.objectives(forPlanID: firstPlan.id) == [updatedObjective], "Rejected duplicate changed links")
+        }
+
+        do {
+            try repository.deleteObjective(id: objective.id)
+            throw CheckFailure(description: "Linked objective was deleted")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "Linked objective was deleted")
+        } catch is DatabaseError {
+            try require(try repository.objective(id: objective.id) == updatedObjective, "Rejected deletion lost the objective")
+        }
+
+        let reopenedManager = try DatabaseManager(databaseURL: databaseURL)
+        let reopenedRepository = PlanningRepository(databaseQueue: reopenedManager.databaseQueue)
+        try require(try reopenedRepository.objectives(forPlanID: secondPlan.id) == [updatedObjective], "Shared objective did not survive reopening")
+
+        try repository.unlink(objectiveID: objective.id, fromPlanID: firstPlan.id)
+        try require(try repository.objective(id: objective.id) == updatedObjective, "Unlinking removed the shared objective")
+        try repository.unlink(objectiveID: objective.id, fromPlanID: secondPlan.id)
+        try require(try repository.deleteObjective(id: objective.id), "Unlinked objective could not be deleted")
+        try require(try repository.objective(id: objective.id) == nil, "Deleted objective remained readable")
+        try require(!repository.deleteObjective(id: objective.id), "Deleting a missing objective reported success")
+
+        let candidate = try Objective(title: "Should roll back")
+        do {
+            try repository.create(candidate, linkedToPlanID: UUID())
+            throw CheckFailure(description: "Objective linked to a missing plan unexpectedly succeeded")
+        } catch is CheckFailure {
+            throw CheckFailure(description: "Objective linked to a missing plan unexpectedly succeeded")
+        } catch is DatabaseError {
+            try require(try repository.objective(id: candidate.id) == nil, "Failed objective linking left an orphan objective")
+        }
+
     }
 
     private static func checkInitializationFailurePreservesExistingData() throws {
@@ -379,6 +449,33 @@ enum DatabaseManagerChecks {
             try upgradedRepository.executionRecord(forOccurrenceID: occurrence.id) == nil,
             "Migration fabricated an execution record for an existing occurrence"
         )
+    }
+
+    private static func checkUpgradeFromPlanningDatabaseBeforeObjectives() throws {
+        let directory = FileManager.default.temporaryDirectory
+            .appendingPathComponent(UUID().uuidString, isDirectory: true)
+        let databaseURL = directory.appendingPathComponent("objectives-upgrade.sqlite")
+        let manager = try DatabaseManager(databaseURL: databaseURL)
+        let repository = PlanningRepository(databaseQueue: manager.databaseQueue)
+        let plan = try Plan(title: "Existing plan", startDate: "2026-10-20", endDate: "2026-10-20")
+        let activity = try Activity(title: "Existing activity")
+        try repository.create(plan)
+        try repository.create(activity, linkedToPlanID: plan.id)
+
+        try manager.databaseQueue.write { db in
+            try db.execute(sql: "DROP TABLE plan_objectives")
+            try db.execute(sql: "DROP TABLE objectives")
+            try db.execute(
+                sql: "DELETE FROM grdb_migrations WHERE identifier = ?",
+                arguments: ["objectives_v1"]
+            )
+        }
+
+        let upgradedManager = try DatabaseManager(databaseURL: databaseURL)
+        let upgradedRepository = PlanningRepository(databaseQueue: upgradedManager.databaseQueue)
+        try require(try upgradedRepository.plan(id: plan.id) == plan, "Objective migration changed existing plan data")
+        try require(try upgradedRepository.activities(forPlanID: plan.id) == [activity], "Objective migration changed existing activity data")
+        try require(try upgradedRepository.objectives().isEmpty, "Objective migration created unexpected objective records")
     }
 
     private static func checkTransactionRollbackAndErrorPropagation() throws {

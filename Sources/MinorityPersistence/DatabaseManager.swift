@@ -101,6 +101,23 @@ public struct DatabaseManager {
                 )
                 """)
         }
+        migrator.registerMigration("objectives_v1") { db in
+            try db.execute(sql: """
+                CREATE TABLE objectives (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    title TEXT NOT NULL CHECK (length(trim(title)) > 0),
+                    details TEXT
+                )
+                """)
+            try db.execute(sql: """
+                CREATE TABLE plan_objectives (
+                    id TEXT PRIMARY KEY NOT NULL,
+                    plan_id TEXT NOT NULL REFERENCES plans(id) ON DELETE CASCADE,
+                    objective_id TEXT NOT NULL REFERENCES objectives(id) ON DELETE RESTRICT,
+                    UNIQUE (plan_id, objective_id)
+                )
+                """)
+        }
         return migrator
     }()
 }

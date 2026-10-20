@@ -99,6 +99,33 @@ public struct PlanActivity: Identifiable, Equatable, Sendable {
     }
 }
 
+public struct Objective: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let title: String
+    public let details: String?
+
+    public init(id: UUID = UUID(), title: String, details: String? = nil) throws {
+        let normalizedTitle = title.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !normalizedTitle.isEmpty else { throw PlanningValidationError.emptyTitle }
+
+        self.id = id
+        self.title = normalizedTitle
+        self.details = details?.trimmingCharacters(in: .whitespacesAndNewlines).nilIfEmpty
+    }
+}
+
+public struct PlanObjective: Identifiable, Equatable, Sendable {
+    public let id: UUID
+    public let planID: UUID
+    public let objectiveID: UUID
+
+    public init(id: UUID = UUID(), planID: UUID, objectiveID: UUID) {
+        self.id = id
+        self.planID = planID
+        self.objectiveID = objectiveID
+    }
+}
+
 public struct ScheduleOccurrence: Identifiable, Equatable, Sendable {
     public let id: UUID
     public let activityID: UUID

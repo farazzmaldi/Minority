@@ -62,6 +62,75 @@ public struct PlanningRepository {
         return relationship
     }
 
+    public func create(_ objective: Objective) throws {
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: "INSERT INTO objectives (id, title, details) VALUES (?, ?, ?)",
+                arguments: [objective.id.uuidString.lowercased(), objective.title, objective.details]
+            )
+        }
+    }
+
+    @discardableResult
+    public func create(_ objective: Objective, linkedToPlanID planID: UUID) throws -> PlanObjective {
+        let relationship = PlanObjective(planID: planID, objectiveID: objective.id)
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: "INSERT INTO objectives (id, title, details) VALUES (?, ?, ?)",
+                arguments: [objective.id.uuidString.lowercased(), objective.title, objective.details]
+            )
+            try insert(relationship, into: db)
+        }
+        return relationship
+    }
+
+    @discardableResult
+    public func link(objectiveID: UUID, toPlanID planID: UUID) throws -> PlanObjective {
+        let relationship = PlanObjective(planID: planID, objectiveID: objectiveID)
+        try databaseQueue.write { db in
+            try insert(relationship, into: db)
+        }
+        return relationship
+    }
+
+    public func unlink(objectiveID: UUID, fromPlanID planID: UUID) throws {
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: "DELETE FROM plan_objectives WHERE objective_id = ? AND plan_id = ?",
+                arguments: [objectiveID.uuidString.lowercased(), planID.uuidString.lowercased()]
+            )
+        }
+    }
+
+    @discardableResult
+    public func update(_ objective: Objective) throws -> Bool {
+        try databaseQueue.write { db in
+            try db.execute(
+                sql: "UPDATE objectives SET title = ?, details = ? WHERE id = ?",
+                arguments: [objective.title, objective.details, objective.id.uuidString.lowercased()]
+            )
+            return db.changesCount > 0
+        }
+    }
+
+    @discardableResult
+    public func deleteObjective(id: UUID) throws -> Bool {
+        try databaseQueue.write { db in
+            try db.execute(sql: "DELETE FROM objectives WHERE id = ?", arguments: [id.uuidString.lowercased()])
+            return db.changesCount > 0
+        }
+    }
+
+    public func objectivePlanCount(id: UUID) throws -> Int {
+        try databaseQueue.read { db in
+            try Int.fetchOne(
+                db,
+                sql: "SELECT COUNT(*) FROM plan_objectives WHERE objective_id = ?",
+                arguments: [id.uuidString.lowercased()]
+            ) ?? 0
+        }
+    }
+
     public func schedule(_ occurrence: ScheduleOccurrence) throws {
         try databaseQueue.write { db in
             try db.execute(
@@ -209,6 +278,98 @@ public struct PlanningRepository {
         }
     }
 
+    public func objective(id: UUID) throws -> Objective? {
+        try databaseQueue.read { db in
+            guard let row = try Row.fetchOne(
+                db,
+                sql: "SELECT id, title, details FROM objectives WHERE id = ?",
+                arguments: [id.uuidString.lowercased()]
+            ) else { return nil }
+            return try Objective(
+                id: decodedUUID(row["id"]),
+                title: row["title"],
+                details: row["details"]
+            )
+        }
+    }
+
+    public func objectives() throws -> [Objective] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(db, sql: "SELECT id, title, details FROM objectives ORDER BY title, id")
+                .map { row in
+                    try Objective(
+                        id: decodedUUID(row["id"]),
+                        title: row["title"],
+                        details: row["details"]
+                    )
+                }
+        }
+    }
+
+    public func planObjectives(forPlanID planID: UUID) throws -> [PlanObjective] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: "SELECT id, plan_id, objective_id FROM plan_objectives WHERE plan_id = ? ORDER BY id",
+                arguments: [planID.uuidString.lowercased()]
+            ).map { row in
+                PlanObjective(
+                    id: try decodedUUID(row["id"]),
+                    planID: try decodedUUID(row["plan_id"]),
+                    objectiveID: try decodedUUID(row["objective_id"])
+                )
+            }
+        }
+    }
+
+    public func objectives(forPlanID planID: UUID) throws -> [Objective] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: """
+                    SELECT objectives.id, objectives.title, objectives.details
+                    FROM objectives
+                    JOIN plan_objectives ON plan_objectives.objective_id = objectives.id
+                    WHERE plan_objectives.plan_id = ?
+                    ORDER BY objectives.title, objectives.id
+                    """,
+                arguments: [planID.uuidString.lowercased()]
+            ).map { row in
+                try Objective(
+                    id: decodedUUID(row["id"]),
+                    title: row["title"],
+                    details: row["details"]
+                )
+            }
+        }
+    }
+
+    public func objectivesNotLinked(toPlanID planID: UUID) throws -> [Objective] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(
+                db,
+                sql: """
+                    SELECT objectives.id, objectives.title, objectives.details
+                    FROM objectives
+                    WHERE NOT EXISTS (
+                        SELECT 1
+                        FROM plan_objectives
+                        WHERE plan_objectives.objective_id = objectives.id
+                            AND plan_objectives.plan_id = ?
+                    )
+                    ORDER BY objectives.title, objectives.id
+                    """,
+                arguments: [planID.uuidString.lowercased()]
+            ).map { row in
+                try Objective(
+                    id: decodedUUID(row["id"]),
+                    title: row["title"],
+                    details: row["details"]
+                )
+            }
+        }
+    }
+
     public func scheduleOccurrences(forActivityID activityID: UUID) throws -> [ScheduleOccurrence] {
         try databaseQueue.read { db in
             try Row.fetchAll(
@@ -280,6 +441,17 @@ private func decodedUUID(_ value: String) throws -> UUID {
         throw PlanningPersistenceError.invalidStoredIdentifier(value)
     }
     return id
+}
+
+private func insert(_ relationship: PlanObjective, into db: Database) throws {
+    try db.execute(
+        sql: "INSERT INTO plan_objectives (id, plan_id, objective_id) VALUES (?, ?, ?)",
+        arguments: [
+            relationship.id.uuidString.lowercased(),
+            relationship.planID.uuidString.lowercased(),
+            relationship.objectiveID.uuidString.lowercased()
+        ]
+    )
 }
 
 private enum PlanningPersistenceError: Error {

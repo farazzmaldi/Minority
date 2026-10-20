@@ -34,6 +34,14 @@ final class PlanListModel: ObservableObject {
     @Published var newPlanStartDate = Calendar(identifier: .gregorian).startOfDay(for: .now)
     @Published var newPlanEndDate = Calendar(identifier: .gregorian).startOfDay(for: .now)
     @Published var createError: String?
+    @Published private(set) var objectives: [Objective] = []
+    @Published private(set) var objectivePlanCounts: [UUID: Int] = [:]
+    @Published private(set) var objectiveLibraryError: String?
+    @Published var isShowingObjectiveLibrary = false
+    @Published var isCreatingObjective = false
+    @Published var objectiveToEdit: Objective?
+    @Published var objectiveToDelete: Objective?
+    @Published var objectiveOperationError: String?
 
     init(databaseManager: DatabaseManager) {
         self.databaseManager = databaseManager
@@ -71,6 +79,46 @@ final class PlanListModel: ObservableObject {
 
     func detailModel(for plan: Plan) -> PlanDetailModel {
         PlanDetailModel(plan: plan, databaseManager: databaseManager)
+    }
+
+    func loadObjectives() {
+        objectiveLibraryError = nil
+        do {
+            objectives = try repository.objectives()
+            objectivePlanCounts = try Dictionary(uniqueKeysWithValues: objectives.map {
+                ($0.id, try repository.objectivePlanCount(id: $0.id))
+            })
+        } catch {
+            objectiveLibraryError = error.localizedDescription
+        }
+    }
+
+    func createObjective(title: String, details: String) throws {
+        try repository.create(Objective(title: title, details: details))
+        loadObjectives()
+    }
+
+    func updateObjective(id: UUID, title: String, details: String) throws {
+        let objective = try Objective(id: id, title: title, details: details)
+        guard try repository.update(objective) else {
+            throw ObjectiveLibraryError.missingObjective
+        }
+        loadObjectives()
+    }
+
+    func deleteObjective(id: UUID) throws {
+        guard try repository.deleteObjective(id: id) else {
+            throw ObjectiveLibraryError.missingObjective
+        }
+        loadObjectives()
+    }
+}
+
+private enum ObjectiveLibraryError: Error, LocalizedError {
+    case missingObjective
+
+    var errorDescription: String? {
+        "The objective no longer exists. Reload the objective list and try again."
     }
 }
 
@@ -128,13 +176,22 @@ struct PlanListView: View {
             .navigationTitle(language.text("Plans", "Rencana"))
             .toolbar {
                 ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        model.beginPlanCreation()
+                    Menu {
+                        Button {
+                            model.beginPlanCreation()
+                        } label: {
+                            Label(language.text("New Plan", "Rencana Baru"), systemImage: "plus")
+                        }
+                        Button {
+                            model.loadObjectives()
+                            model.isShowingObjectiveLibrary = true
+                        } label: {
+                            Label(language.text("Objectives", "Tujuan"), systemImage: "scope")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
                     } label: {
-                        Label(language.text("New Plan", "Rencana Baru"), systemImage: "plus")
+                        Image(systemName: "plus")
                     }
-                    .help(language.text("Create a plan", "Buat rencana"))
-                    .disabled(model.isLoading || model.loadError != nil)
                 }
             }
         }
@@ -145,6 +202,9 @@ struct PlanListView: View {
         .sheet(isPresented: $model.isShowingCreateSheet) {
             CreatePlanSheet(language: language, model: model)
         }
+        .sheet(isPresented: $model.isShowingObjectiveLibrary) {
+            ObjectiveLibrarySheet(language: language, model: model)
+        }
     }
 }
 
@@ -154,14 +214,21 @@ final class PlanDetailModel: ObservableObject {
     private let repository: PlanningRepository
     @Published private(set) var activities: [Activity] = []
     @Published private(set) var activitiesAvailableToLink: [Activity] = []
+    @Published private(set) var objectives: [Objective] = []
+    @Published private(set) var objectivesAvailableToLink: [Objective] = []
     @Published private(set) var occurrences: [UUID: [ScheduleOccurrence]] = [:]
     @Published private(set) var executionRecords: [UUID: ExecutionRecord] = [:]
     @Published private(set) var isLoading = true
     @Published private(set) var loadError: String?
     @Published var isShowingActivitySheet = false
     @Published var isShowingLinkActivitySheet = false
+    @Published var isShowingObjectiveSheet = false
+    @Published var isShowingLinkObjectiveSheet = false
     @Published var activityToSchedule: Activity?
     @Published var activityIDToLink: UUID?
+    @Published var objectiveIDToLink: UUID?
+    @Published var objectiveError: String?
+    @Published var objectiveLinkError: String?
     @Published var linkError: String?
     @Published var executionSaveError: String?
 
@@ -176,6 +243,8 @@ final class PlanDetailModel: ObservableObject {
         do {
             activities = try repository.activities(forPlanID: plan.id)
             activitiesAvailableToLink = try repository.activitiesNotLinked(toPlanID: plan.id)
+            objectives = try repository.objectives(forPlanID: plan.id)
+            objectivesAvailableToLink = try repository.objectivesNotLinked(toPlanID: plan.id)
             occurrences = try Dictionary(uniqueKeysWithValues: activities.map {
                 ($0.id, try repository.scheduleOccurrences(forActivityID: $0.id))
             })
@@ -205,6 +274,23 @@ final class PlanDetailModel: ObservableObject {
         load()
     }
 
+    func createObjective(title: String, details: String) throws {
+        let objective = try Objective(title: title, details: details)
+        try repository.create(objective, linkedToPlanID: plan.id)
+        load()
+    }
+
+    func linkExistingObjective(id: UUID) throws {
+        try repository.link(objectiveID: id, toPlanID: plan.id)
+        objectiveIDToLink = nil
+        load()
+    }
+
+    func unlinkObjective(id: UUID) throws {
+        try repository.unlink(objectiveID: id, fromPlanID: plan.id)
+        load()
+    }
+
     func schedule(_ occurrence: ScheduleOccurrence) throws {
         try repository.schedule(occurrence)
         load()
@@ -231,84 +317,114 @@ private struct PlanDetailView: View {
     var body: some View {
         Group {
             if model.isLoading {
-                ProgressView(language.text("Loading activities…", "Memuat kegiatan…"))
+                ProgressView(language.text("Loading plan details…", "Memuat rincian rencana…"))
             } else if let loadError = model.loadError {
                 VStack(spacing: 12) {
                     ContentUnavailableView(
-                        language.text("Activities Could Not Be Loaded", "Kegiatan Tidak Dapat Dimuat"),
+                        language.text("Plan Details Could Not Be Loaded", "Rincian Rencana Tidak Dapat Dimuat"),
                         systemImage: "exclamationmark.triangle",
                         description: Text(loadError)
                     )
                     Button(language.text("Try Again", "Coba Lagi")) { model.load() }
                 }
-            } else if model.activities.isEmpty {
-                ContentUnavailableView(
-                    language.text("No Activities Yet", "Belum Ada Kegiatan"),
-                    systemImage: "checklist",
-                    description: Text(language.text(
-                        "Add an activity to this plan. Scheduling is a separate, explicit step.",
-                        "Tambahkan kegiatan ke rencana ini. Penjadwalan adalah langkah terpisah dan eksplisit."
-                    ))
-                )
             } else {
-                List(model.activities) { activity in
-                    VStack(alignment: .leading, spacing: 8) {
-                        HStack {
-                            VStack(alignment: .leading, spacing: 3) {
-                                Text(activity.title).font(.headline)
-                                if let details = activity.details {
-                                    Text(details).foregroundStyle(.secondary)
-                                }
-                            }
-                            Spacer()
-                            Button(language.text("Schedule Once", "Jadwalkan Sekali")) {
-                                model.activityToSchedule = activity
-                            }
-                        }
-                        let items = model.occurrences[activity.id] ?? []
-                        if items.isEmpty {
-                            Text(language.text("No scheduled occurrences", "Belum ada jadwal"))
-                                .font(.subheadline)
+                List {
+                    Section(language.text("Objectives", "Tujuan")) {
+                        if model.objectives.isEmpty {
+                            Text(language.text("No objectives linked to this plan.", "Belum ada tujuan pada rencana ini."))
                                 .foregroundStyle(.secondary)
                         } else {
-                            ForEach(items) { occurrence in
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(scheduleDescription(occurrence))
-                                        .font(.subheadline)
-                                        .foregroundStyle(.secondary)
-                                    if let record = model.executionRecords[occurrence.id] {
-                                        Label {
-                                            Text("\(language.text("Recorded at", "Catatan dibuat pada")) · \(record.recordedAt.formatted(date: .abbreviated, time: .shortened))")
-                                        } icon: {
-                                            Image(systemName: "checkmark.circle.fill")
+                            ForEach(model.objectives) { objective in
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 4) {
+                                        Text(objective.title).font(.headline)
+                                        if let details = objective.details {
+                                            Text(details).foregroundStyle(.secondary)
                                         }
-                                        .font(.caption)
-                                    } else {
-                                        HStack {
-                                            Text(language.text("No execution record", "Belum ada catatan pelaksanaan"))
-                                                .font(.caption)
-                                                .foregroundStyle(.secondary)
-                                            Button(language.text("Record as completed", "Catat sudah terlaksana")) {
-                                                do {
-                                                    try model.recordExecution(for: occurrence.id)
-                                                } catch {
-                                                    model.executionSaveError = error.localizedDescription
-                                                }
-                                            }
-                                            .font(.caption)
-                                        }
-                                        Text(language.text(
-                                            "The saved time is when you record this, not when the activity happened.",
-                                            "Waktu yang disimpan adalah saat Anda mencatat, bukan saat kegiatan dilakukan."
-                                        ))
-                                        .font(.caption2)
-                                        .foregroundStyle(.secondary)
                                     }
+                                    Spacer()
+                                    Button(language.text("Unlink", "Lepas Tautan"), role: .destructive) {
+                                        do {
+                                            try model.unlinkObjective(id: objective.id)
+                                        } catch {
+                                            model.objectiveError = error.localizedDescription
+                                        }
+                                    }
+                                    .buttonStyle(.borderless)
                                 }
                             }
                         }
                     }
-                    .padding(.vertical, 5)
+
+                    Section(language.text("Activities", "Kegiatan")) {
+                        if model.activities.isEmpty {
+                            Text(language.text(
+                                "Add an activity to this plan. Scheduling is a separate, explicit step.",
+                                "Tambahkan kegiatan ke rencana ini. Penjadwalan adalah langkah terpisah dan eksplisit."
+                            ))
+                            .foregroundStyle(.secondary)
+                        }
+                        ForEach(model.activities) { activity in
+                            VStack(alignment: .leading, spacing: 8) {
+                                HStack {
+                                    VStack(alignment: .leading, spacing: 3) {
+                                        Text(activity.title).font(.headline)
+                                        if let details = activity.details {
+                                            Text(details).foregroundStyle(.secondary)
+                                        }
+                                    }
+                                    Spacer()
+                                    Button(language.text("Schedule Once", "Jadwalkan Sekali")) {
+                                        model.activityToSchedule = activity
+                                    }
+                                }
+
+                                let items = model.occurrences[activity.id] ?? []
+                                if items.isEmpty {
+                                    Text(language.text("No scheduled occurrences", "Belum ada jadwal"))
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                } else {
+                                    ForEach(items) { occurrence in
+                                        VStack(alignment: .leading, spacing: 4) {
+                                            Text(scheduleDescription(occurrence))
+                                                .font(.subheadline)
+                                                .foregroundStyle(.secondary)
+                                            if let record = model.executionRecords[occurrence.id] {
+                                                Label {
+                                                    Text("\(language.text("Recorded at", "Catatan dibuat pada")) · \(record.recordedAt.formatted(date: .abbreviated, time: .shortened))")
+                                                } icon: {
+                                                    Image(systemName: "checkmark.circle.fill")
+                                                }
+                                                .font(.caption)
+                                            } else {
+                                                HStack {
+                                                    Text(language.text("No execution record", "Belum ada catatan pelaksanaan"))
+                                                        .font(.caption)
+                                                        .foregroundStyle(.secondary)
+                                                    Button(language.text("Record as completed", "Catat sudah terlaksana")) {
+                                                        do {
+                                                            try model.recordExecution(for: occurrence.id)
+                                                        } catch {
+                                                            model.executionSaveError = error.localizedDescription
+                                                        }
+                                                    }
+                                                    .font(.caption)
+                                                }
+                                                Text(language.text(
+                                                    "The saved time is when you record this, not when the activity happened.",
+                                                    "Waktu yang disimpan adalah saat Anda mencatat, bukan saat kegiatan dilakukan."
+                                                ))
+                                                .font(.caption2)
+                                                .foregroundStyle(.secondary)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            .padding(.vertical, 5)
+                        }
+                    }
                 }
             }
         }
@@ -316,6 +432,17 @@ private struct PlanDetailView: View {
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 Menu {
+                    Button {
+                        model.isShowingObjectiveSheet = true
+                    } label: {
+                        Label(language.text("New Objective", "Tujuan Baru"), systemImage: "scope")
+                    }
+                    Button {
+                        model.objectiveIDToLink = nil
+                        model.isShowingLinkObjectiveSheet = true
+                    } label: {
+                        Label(language.text("Link Existing Objective", "Tautkan Tujuan yang Ada"), systemImage: "link")
+                    }
                     Button {
                         model.isShowingActivitySheet = true
                     } label: {
@@ -336,6 +463,12 @@ private struct PlanDetailView: View {
         .sheet(isPresented: $model.isShowingActivitySheet) {
             CreateActivitySheet(language: language, model: model)
         }
+        .sheet(isPresented: $model.isShowingObjectiveSheet) {
+            CreateObjectiveSheet(language: language, model: model)
+        }
+        .sheet(isPresented: $model.isShowingLinkObjectiveSheet) {
+            LinkExistingObjectiveSheet(language: language, model: model)
+        }
         .sheet(isPresented: $model.isShowingLinkActivitySheet) {
             LinkExistingActivitySheet(language: language, model: model)
         }
@@ -352,6 +485,17 @@ private struct PlanDetailView: View {
             Button(language.text("OK", "OK"), role: .cancel) { model.executionSaveError = nil }
         } message: {
             Text(model.executionSaveError ?? "")
+        }
+        .alert(
+            language.text("Objective Could Not Be Updated", "Tujuan Tidak Dapat Diperbarui"),
+            isPresented: Binding(
+                get: { model.objectiveError != nil },
+                set: { if !$0 { model.objectiveError = nil } }
+            )
+        ) {
+            Button(language.text("OK", "OK"), role: .cancel) { model.objectiveError = nil }
+        } message: {
+            Text(model.objectiveError ?? "")
         }
     }
 
@@ -519,6 +663,355 @@ private struct CreateActivitySheet: View {
         .frame(minWidth: 460, minHeight: 260)
     }
 
+}
+
+@MainActor
+private final class ObjectiveCreationForm: ObservableObject {
+    @Published var title = ""
+    @Published var details = ""
+    @Published var error: String?
+    let language: InterfaceLanguage
+    let model: PlanDetailModel
+
+    init(language: InterfaceLanguage, model: PlanDetailModel) {
+        self.language = language
+        self.model = model
+    }
+
+    func save() -> Bool {
+        error = nil
+        do {
+            try model.createObjective(title: title, details: details)
+            return true
+        } catch let validationError as PlanningValidationError {
+            error = validationError == .emptyTitle
+                ? language.text("Enter a title for the objective.", "Masukkan judul tujuan.")
+                : validationError.localizedDescription
+        } catch let saveError {
+            error = "\(language.text("The objective could not be saved:", "Tujuan tidak dapat disimpan:")) \(saveError.localizedDescription)"
+        }
+        return false
+    }
+}
+
+@MainActor
+private struct CreateObjectiveSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var form: ObjectiveCreationForm
+
+    init(language: InterfaceLanguage, model: PlanDetailModel) {
+        _form = StateObject(wrappedValue: ObjectiveCreationForm(language: language, model: model))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(form.language.text("New Objective", "Tujuan Baru"))
+                .font(.title2)
+                .bold()
+            Text(form.language.text("This objective will be linked to the current plan.", "Tujuan ini akan ditautkan ke rencana saat ini."))
+                .foregroundStyle(.secondary)
+            Form {
+                TextField(form.language.text("Title", "Judul"), text: $form.title)
+                TextField(form.language.text("Details (optional)", "Rincian (opsional)"), text: $form.details, axis: .vertical)
+                if let error = form.error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
+            }
+            HStack {
+                Spacer()
+                Button(form.language.text("Cancel", "Batal")) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button(form.language.text("Create Objective", "Buat Tujuan")) {
+                    if form.save() { dismiss() }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 460, minHeight: 260)
+        .environment(\.locale, form.language.locale)
+    }
+}
+
+@MainActor
+private struct LinkExistingObjectiveSheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let language: InterfaceLanguage
+    @ObservedObject var model: PlanDetailModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(language.text("Link Existing Objective", "Tautkan Tujuan yang Ada"))
+                .font(.title2)
+                .bold()
+            Text(language.text(
+                "The same objective can be shared across plans.",
+                "Tujuan yang sama dapat digunakan bersama di beberapa rencana."
+            ))
+            .foregroundStyle(.secondary)
+
+            if model.objectivesAvailableToLink.isEmpty {
+                ContentUnavailableView(
+                    language.text("No Objectives to Link", "Tidak Ada Tujuan untuk Ditautkan"),
+                    systemImage: "scope",
+                    description: Text(language.text(
+                        "Create an objective in another plan first.",
+                        "Buat tujuan di rencana lain terlebih dahulu."
+                    ))
+                )
+                .frame(minHeight: 150)
+            } else {
+                List(model.objectivesAvailableToLink) { objective in
+                    Button {
+                        model.objectiveIDToLink = objective.id
+                        model.objectiveLinkError = nil
+                    } label: {
+                        HStack(spacing: 10) {
+                            Image(systemName: model.objectiveIDToLink == objective.id ? "largecircle.fill.circle" : "circle")
+                                .foregroundStyle(model.objectiveIDToLink == objective.id ? Color.accentColor : Color.secondary)
+                            VStack(alignment: .leading, spacing: 3) {
+                                Text(objective.title)
+                                if let details = objective.details {
+                                    Text(details).font(.subheadline).foregroundStyle(.secondary)
+                                }
+                            }
+                            Spacer()
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    .buttonStyle(.plain)
+                    .contentShape(Rectangle())
+                }
+                .frame(minHeight: 180)
+            }
+
+            if let error = model.objectiveLinkError {
+                Text("\(language.text("The objective could not be linked:", "Tujuan tidak dapat ditautkan:")) \(error)")
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
+            }
+
+            HStack {
+                Spacer()
+                Button(language.text("Cancel", "Batal")) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button(language.text("Link Objective", "Tautkan Tujuan")) {
+                    guard let objectiveID = model.objectiveIDToLink else { return }
+                    model.objectiveLinkError = nil
+                    do {
+                        try model.linkExistingObjective(id: objectiveID)
+                        dismiss()
+                    } catch {
+                        model.objectiveLinkError = error.localizedDescription
+                    }
+                }
+                .disabled(model.objectiveIDToLink == nil || model.objectivesAvailableToLink.isEmpty)
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 460, minHeight: 320)
+        .environment(\.locale, language.locale)
+        .onAppear {
+            model.objectiveIDToLink = nil
+            model.objectiveLinkError = nil
+            model.load()
+        }
+    }
+}
+
+@MainActor
+private struct ObjectiveLibrarySheet: View {
+    @Environment(\.dismiss) private var dismiss
+    let language: InterfaceLanguage
+    @ObservedObject var model: PlanListModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Text(language.text("Objectives", "Tujuan"))
+                    .font(.title2)
+                    .bold()
+                Spacer()
+                Button(language.text("New Objective", "Tujuan Baru")) { model.isCreatingObjective = true }
+                    .disabled(model.objectiveLibraryError != nil)
+            }
+
+            if let error = model.objectiveLibraryError {
+                ContentUnavailableView(
+                    language.text("Objectives Could Not Be Loaded", "Tujuan Tidak Dapat Dimuat"),
+                    systemImage: "exclamationmark.triangle",
+                    description: Text(error)
+                )
+                Button(language.text("Try Again", "Coba Lagi")) { model.loadObjectives() }
+            } else if model.objectives.isEmpty {
+                ContentUnavailableView(
+                    language.text("No Objectives Yet", "Belum Ada Tujuan"),
+                    systemImage: "scope",
+                    description: Text(language.text(
+                        "Create an objective, then link it to one or more plans.",
+                        "Buat tujuan, lalu tautkan ke satu atau beberapa rencana."
+                    ))
+                )
+            } else {
+                List(model.objectives) { objective in
+                    HStack(spacing: 12) {
+                        VStack(alignment: .leading, spacing: 3) {
+                            Text(objective.title).font(.headline)
+                            if let details = objective.details {
+                                Text(details).foregroundStyle(.secondary)
+                            }
+                            let linkCount = model.objectivePlanCounts[objective.id, default: 0]
+                            Text(linkCount == 0
+                                ? language.text("Not linked to a plan", "Belum tertaut ke rencana")
+                                : language.text("Linked to \(linkCount) plans", "Tertaut ke \(linkCount) rencana"))
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                        }
+                        Spacer()
+                        Button(language.text("Edit", "Ubah")) { model.objectiveToEdit = objective }
+                            .buttonStyle(.borderless)
+                        if model.objectivePlanCounts[objective.id, default: 0] == 0 {
+                            Button(language.text("Delete", "Hapus"), role: .destructive) {
+                                model.objectiveToDelete = objective
+                            }
+                            .buttonStyle(.borderless)
+                        }
+                    }
+                    .padding(.vertical, 4)
+                }
+            }
+
+            if let operationError = model.objectiveOperationError {
+                Text(operationError)
+                    .foregroundStyle(.red)
+                    .textSelection(.enabled)
+            }
+
+            HStack {
+                Spacer()
+                Button(language.text("Done", "Selesai")) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 560, minHeight: 380)
+        .environment(\.locale, language.locale)
+        .sheet(isPresented: $model.isCreatingObjective) {
+            ObjectiveLibraryForm(language: language, model: model, objective: nil)
+        }
+        .sheet(item: $model.objectiveToEdit) { objective in
+            ObjectiveLibraryForm(language: language, model: model, objective: objective)
+        }
+        .confirmationDialog(
+            language.text("Delete Objective?", "Hapus Tujuan?"),
+            isPresented: Binding(
+                get: { model.objectiveToDelete != nil },
+                set: { if !$0 { model.objectiveToDelete = nil } }
+            ),
+            titleVisibility: .visible
+        ) {
+            Button(language.text("Delete Objective", "Hapus Tujuan"), role: .destructive) {
+                guard let objective = model.objectiveToDelete else { return }
+                do {
+                    try model.deleteObjective(id: objective.id)
+                    model.objectiveToDelete = nil
+                    model.objectiveOperationError = nil
+                } catch {
+                    model.objectiveOperationError = "\(language.text("The objective could not be deleted:", "Tujuan tidak dapat dihapus:")) \(error.localizedDescription)"
+                    model.objectiveToDelete = nil
+                    model.loadObjectives()
+                }
+            }
+            Button(language.text("Cancel", "Batal"), role: .cancel) { model.objectiveToDelete = nil }
+        } message: {
+            Text(language.text(
+                "Only objectives that are not linked to any plan can be deleted.",
+                "Hanya tujuan yang tidak tertaut ke rencana mana pun yang dapat dihapus."
+            ))
+        }
+    }
+}
+
+@MainActor
+private final class ObjectiveLibraryFormModel: ObservableObject {
+    @Published var title: String
+    @Published var details: String
+    @Published var error: String?
+    let language: InterfaceLanguage
+    let model: PlanListModel
+    let objective: Objective?
+
+    init(language: InterfaceLanguage, model: PlanListModel, objective: Objective?) {
+        self.language = language
+        self.model = model
+        self.objective = objective
+        title = objective?.title ?? ""
+        details = objective?.details ?? ""
+    }
+
+    func save() -> Bool {
+        error = nil
+        do {
+            if let objective {
+                try model.updateObjective(id: objective.id, title: title, details: details)
+            } else {
+                try model.createObjective(title: title, details: details)
+            }
+            return true
+        } catch let validationError as PlanningValidationError {
+            error = validationError == .emptyTitle
+                ? language.text("Enter a title for the objective.", "Masukkan judul tujuan.")
+                : validationError.localizedDescription
+        } catch let saveError {
+            error = "\(language.text("The objective could not be saved:", "Tujuan tidak dapat disimpan:")) \(saveError.localizedDescription)"
+        }
+        return false
+    }
+}
+
+@MainActor
+private struct ObjectiveLibraryForm: View {
+    @Environment(\.dismiss) private var dismiss
+    @StateObject private var form: ObjectiveLibraryFormModel
+
+    init(language: InterfaceLanguage, model: PlanListModel, objective: Objective?) {
+        _form = StateObject(wrappedValue: ObjectiveLibraryFormModel(
+            language: language,
+            model: model,
+            objective: objective
+        ))
+    }
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            Text(form.objective == nil
+                ? form.language.text("New Objective", "Tujuan Baru")
+                : form.language.text("Edit Objective", "Ubah Tujuan"))
+                .font(.title2)
+                .bold()
+            Text(form.language.text(
+                "Changes update the same objective everywhere it is linked.",
+                "Perubahan memperbarui tujuan yang sama di semua rencana yang tertaut."
+            ))
+            .foregroundStyle(.secondary)
+            Form {
+                TextField(form.language.text("Title", "Judul"), text: $form.title)
+                TextField(form.language.text("Details (optional)", "Rincian (opsional)"), text: $form.details, axis: .vertical)
+                if let error = form.error { Text(error).foregroundStyle(.red).textSelection(.enabled) }
+            }
+            HStack {
+                Spacer()
+                Button(form.language.text("Cancel", "Batal")) { dismiss() }
+                    .keyboardShortcut(.cancelAction)
+                Button(form.language.text("Save", "Simpan")) {
+                    if form.save() { dismiss() }
+                }
+                .keyboardShortcut(.defaultAction)
+            }
+        }
+        .padding(20)
+        .frame(minWidth: 460, minHeight: 270)
+        .environment(\.locale, form.language.locale)
+    }
 }
 
 @MainActor
