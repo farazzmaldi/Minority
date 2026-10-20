@@ -79,7 +79,7 @@ Kriteria untuk H–K di atas adalah batas penyusunan spesifikasi dan penerimaan.
 
 ## End-to-End User Workflows
 
-Peta konseptual berikut menghubungkan hasil pengguna dengan requirement yang sama di atas. Detail yang berstatus RECORDED/PROPOSED/OPEN tetap mempunyai status itu. Daftar alur ini tidak mengonfirmasi cakupan Product MVP atau mengizinkan implementasi seluruhnya; WF-01 adalah acuan kandidat Technical Alpha dalam masterplan.
+Peta konseptual berikut menghubungkan hasil pengguna dengan requirement yang sama di atas. Cakupan MVP yang disetujui melalui DEC-025 memakai WF-01 ditambah pencatatan manual terbatas dari WF-03. Status requirement RECORDED/PROPOSED/OPEN tetap seperti sumbernya; persetujuan alur MVP tidak mengonfirmasi keseluruhan requirement atau mengizinkan semua enam alur konseptual.
 
 | ID | Langkah konseptual dan hasil pengguna | Requirement acuan |
 | --- | --- | --- |
