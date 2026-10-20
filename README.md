@@ -4,7 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented in the single Minority app and published on `main` at `81aaf7f` (full evidence in project progress). Current local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
+Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented in the single Minority app; the roadmap implementation was published on `main` at `81aaf7f` (full evidence in project progress). Local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
 
 ## Development guide
 
@@ -25,6 +25,7 @@ The [release strategy](docs/MASTERPLAN.md#strategi-rilis) distinguishes a planni
 - Swift and SwiftUI
 - SQLite through GRDB
 - Swift Package Manager
+- Apple frameworks: PDFKit for document/PDF handling, Vision for on-device OCR, and NaturalLanguage for local contextual embeddings
 - Modular monolith: the app and persistence layer are separate Swift targets in one application
 - Local-first storage at `~/Library/Application Support/Minority/minority.sqlite`
 
@@ -80,7 +81,7 @@ The packaging script builds the release executable, creates the app bundle, and 
 
 For a scheduled occurrence, the user can explicitly record that it was completed and view the record. The record is unique to the occurrence and shows when it was entered; this timestamp is not presented as the actual time the activity happened. No record means the occurrence has not been recorded, not that it failed. This initial slice has no score or correction flow; an incorrect record cannot currently be edited or removed.
 
-## Planned functionality
+## Roadmap functionality
 
 - Daily, monthly, and yearly planning
 - Perintah Induk and Perintah Harian
@@ -92,7 +93,7 @@ For a scheduled occurrence, the user can explicitly record that it was completed
 - Structured JSON planning import
 - Objectives shared across Plans
 
-These capabilities are not part of the approved Technical Alpha WF-01 scope. Planning, Objective management, and the operational-command slice are implemented locally; later stages and publication status are tracked in `docs/PROGRESS.md`.
+The listed roadmap capabilities are implemented in the canonical Minority app and published. Their final manual acceptance and release readiness remain separate; see `docs/PROGRESS.md` for verification evidence and open gates.
 
 ### Planning JSON import format
 
