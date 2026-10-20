@@ -47,6 +47,9 @@ final class PlanListModel: ObservableObject {
     @Published var objectiveToDelete: Objective?
     @Published var objectiveOperationError: String?
     @Published var isImportingPlanningJSON = false
+    @Published var isShowingPlanningJSONPaste = false
+    @Published var isShowingPlanningGPTPrompt = false
+    @Published var didCopyPlanningGPTPrompt = false
     @Published var importReview: PlanningImportReview?
     @Published var importOperationError: String?
 
@@ -114,10 +117,20 @@ final class PlanListModel: ObservableObject {
         }
     }
 
+    func makePlanningImportReview(from text: String) throws -> PlanningImportReview {
+        let data = Data(text.trimmingCharacters(in: .whitespacesAndNewlines).utf8)
+        return PlanningImportReview(data: data, summary: try importRepository.preview(data))
+    }
+
     func confirmPlanningImport() throws {
         guard let review = importReview else { return }
-        _ = try importRepository.importJSON(review.data)
+        try confirmPlanningImport(data: review.data)
         importReview = nil
+    }
+
+    func confirmPlanningImport(data: Data) throws {
+        _ = try importRepository.importJSON(data)
+        importOperationError = nil
         load()
     }
 
@@ -223,9 +236,22 @@ struct PlanListView: View {
                             Label(language.text("New Plan", "Rencana Baru"), systemImage: "plus")
                         }
                         Button {
+                            model.didCopyPlanningGPTPrompt = false
+                            model.isShowingPlanningGPTPrompt = true
+                        } label: {
+                            Label(language.text("Prepare JSON with GPT…", "Siapkan JSON dengan GPT…"), systemImage: "sparkles")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        Button {
+                            model.isShowingPlanningJSONPaste = true
+                        } label: {
+                            Label(language.text("Paste JSON from GPT…", "Tempel JSON dari GPT…"), systemImage: "doc.on.clipboard")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        Button {
                             model.isImportingPlanningJSON = true
                         } label: {
-                            Label(language.text("Import Planning JSON…", "Impor JSON Perencanaan…"), systemImage: "square.and.arrow.down")
+                            Label(language.text("Choose JSON File…", "Pilih Berkas JSON…"), systemImage: "square.and.arrow.down")
                         }
                         .disabled(model.isLoading || model.loadError != nil)
                         Button {
@@ -277,16 +303,22 @@ struct PlanListView: View {
         .sheet(isPresented: $model.isShowingObjectiveLibrary) {
             ObjectiveLibrarySheet(language: language, model: model)
         }
+        .sheet(isPresented: $model.isShowingPlanningGPTPrompt) {
+            PlanningImportPromptSheet(language: language, didCopyPrompt: $model.didCopyPlanningGPTPrompt)
+        }
+        .sheet(isPresented: $model.isShowingPlanningJSONPaste) {
+            PlanningJSONPasteSheet(language: language) { text in
+                try model.makePlanningImportReview(from: text)
+            } onAdd: { data in
+                try model.confirmPlanningImport(data: data)
+            }
+        }
         .fileImporter(isPresented: $model.isImportingPlanningJSON, allowedContentTypes: [.json]) { result in
             model.preparePlanningImport(from: result)
         }
         .sheet(item: $model.importReview) { review in
-            PlanningImportReviewSheet(language: language, summary: review.summary) {
-                do {
-                    try model.confirmPlanningImport()
-                } catch {
-                    model.importOperationError = error.localizedDescription
-                }
+            PlanningImportReviewSheet(language: language, summary: review.summary, operationError: $model.importOperationError) {
+                try model.confirmPlanningImport()
             } onCancel: {
                 model.importReview = nil
             }
