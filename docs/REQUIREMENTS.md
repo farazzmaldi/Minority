@@ -43,12 +43,12 @@ Skala prioritas, pengulangan, konflik jadwal, zona waktu, jadwal lintas hari, hi
 | REQ-CMD-003 | Hubungan item dengan Perintah Induk eksplisit dan opsional | Setiap item dapat tanpa induk atau menunjuk versi induk yang telah diterbitkan; tidak disimpulkan dari Plan, Activity, atau keanggotaan target; beberapa induk dapat muncul dalam satu perintah harian | H1; RECORDED |
 | REQ-CMD-004 | Identitas perintah dan versi terpisah | Maksimal satu identitas logis Perintah Harian per tanggal, tanpa kewajiban penerbitan setiap hari; koreksi menghasilkan versi baru dan penggantian versi berlangsung konsisten | H1; RECORDED |
 | REQ-CMD-005 | Publikasi mempertahankan sejarah | Konten dan snapshot versi terbit tidak diubah di tempat; judul, rincian, tanggal/jam, klasifikasi, prioritas, urutan, serta target yang relevan disimpan; perubahan sumber tidak menulis ulang sejarah | H1; RECORDED |
-| REQ-CMD-006 | Representasi dan keluaran dokumen perintah | Pengguna dapat meninjau representasi dokumen dan versi yang dipilih; kebutuhan cetak dan/atau ekspor PDF ditentukan sebelum E; keluaran yang diterima sesuai versi/snapshot sumber dan kegagalan keluaran tidak mengubah sejarah; template serta format final masih terbuka | A1 P1-03; PROPOSED |
+| REQ-CMD-006 | Representasi dan keluaran dokumen perintah | Pengguna dapat meninjau representasi dokumen dan versi yang dipilih, lalu mencetak atau mengekspor PDF dari snapshot versi tersebut; template lokal yang sama digunakan untuk pratinjau/cetak/PDF; kegagalan keluaran tidak mengubah riwayat | A1 P1-03; RECORDED melalui DEC-028, belum CONFIRMED |
 | REQ-CMD-007 | Target operasional Perintah Induk bersifat opsional dan merujuk data yang ada | Dokumen dapat berdiri tanpa target atau merujuk Plan, Activity, dan Objective yang sudah ada; referensi tidak membuat, menggandakan, atau mengambil kepemilikan master kegiatan | H1; RECORDED |
 
 REQ-CMD-001 mempertahankan makna pilihan hybrid. Rincian target yang sebelumnya tercampur di kriterianya dipisahkan ke REQ-CMD-007 agar konfirmasi model tidak sekaligus mengonfirmasi aturan target. REQ-CMD-002..005 tetap RECORDED.
 
-Format dokumen, penomoran, pengeditan draft, penarikan publikasi, perubahan tanggal, dan aturan transaksi publikasi harus dirinci sebelum E. Status versi dapat menunjuk versi pengganti; konten historis tetap terlindungi.
+Format, penomoran, draft, penarikan publikasi, perubahan tanggal, dan transaksi publikasi memiliki baseline implementasi tercatat pada DEC-028. Status versi dapat menunjuk versi pengganti; konten historis tetap terlindungi. Detail itu belum CONFIRMED oleh pengguna dan dapat direvisi berdasarkan bukti implementasi tanpa menulis ulang sejarah.
 
 ## Pelaksanaan dan evaluasi
 
