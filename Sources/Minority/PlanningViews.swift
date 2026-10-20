@@ -1,8 +1,9 @@
 import Combine
 import SwiftUI
 import MinorityPersistence
+import UniformTypeIdentifiers
 
-private enum InterfaceLanguage: String, CaseIterable {
+enum InterfaceLanguage: String, CaseIterable {
     case english
     case bahasaIndonesia
 
@@ -25,7 +26,10 @@ private enum InterfaceLanguage: String, CaseIterable {
 @MainActor
 final class PlanListModel: ObservableObject {
     private let repository: PlanningRepository
+    private let importRepository: PlanningImportRepository
     private let databaseManager: DatabaseManager
+    private lazy var operationalCommandModel = OperationalCommandCenterModel(databaseManager: databaseManager)
+    private lazy var documentLibraryModel = DocumentLibraryModel(databaseManager: databaseManager)
     @Published private(set) var plans: [Plan] = []
     @Published private(set) var isLoading = true
     @Published private(set) var loadError: String?
@@ -42,10 +46,14 @@ final class PlanListModel: ObservableObject {
     @Published var objectiveToEdit: Objective?
     @Published var objectiveToDelete: Objective?
     @Published var objectiveOperationError: String?
+    @Published var isImportingPlanningJSON = false
+    @Published var importReview: PlanningImportReview?
+    @Published var importOperationError: String?
 
     init(databaseManager: DatabaseManager) {
         self.databaseManager = databaseManager
         repository = PlanningRepository(databaseQueue: databaseManager.databaseQueue)
+        importRepository = PlanningImportRepository(databaseQueue: databaseManager.databaseQueue)
     }
 
     func load() {
@@ -79,6 +87,38 @@ final class PlanListModel: ObservableObject {
 
     func detailModel(for plan: Plan) -> PlanDetailModel {
         PlanDetailModel(plan: plan, databaseManager: databaseManager)
+    }
+
+    func commandCenterModel() -> OperationalCommandCenterModel {
+        operationalCommandModel
+    }
+
+    func documentModel() -> DocumentLibraryModel {
+        documentLibraryModel
+    }
+
+    func searchDatabaseManager() -> DatabaseManager {
+        databaseManager
+    }
+
+    func preparePlanningImport(from result: Result<URL, Error>) {
+        do {
+            let url = try result.get()
+            let accessed = url.startAccessingSecurityScopedResource()
+            defer { if accessed { url.stopAccessingSecurityScopedResource() } }
+            let data = try Data(contentsOf: url)
+            importReview = PlanningImportReview(data: data, summary: try importRepository.preview(data))
+            importOperationError = nil
+        } catch {
+            importOperationError = error.localizedDescription
+        }
+    }
+
+    func confirmPlanningImport() throws {
+        guard let review = importReview else { return }
+        _ = try importRepository.importJSON(review.data)
+        importReview = nil
+        load()
     }
 
     func loadObjectives() {
@@ -183,10 +223,42 @@ struct PlanListView: View {
                             Label(language.text("New Plan", "Rencana Baru"), systemImage: "plus")
                         }
                         Button {
+                            model.isImportingPlanningJSON = true
+                        } label: {
+                            Label(language.text("Import Planning JSON…", "Impor JSON Perencanaan…"), systemImage: "square.and.arrow.down")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        Button {
                             model.loadObjectives()
                             model.isShowingObjectiveLibrary = true
                         } label: {
                             Label(language.text("Objectives", "Tujuan"), systemImage: "scope")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        NavigationLink {
+                            OperationalCommandCenterView(model: model.commandCenterModel())
+                        } label: {
+                            Label(language.text("Operational Commands", "Perintah Operasional"), systemImage: "doc.text")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        NavigationLink {
+                            DocumentLibraryView(language: language, model: model.documentModel())
+                        } label: {
+                            Label(language.text("Documents", "Dokumen"), systemImage: "doc.richtext")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        NavigationLink {
+                            LocalSearchView(language: language, databaseManager: model.searchDatabaseManager())
+                        } label: {
+                            Label(language.text("Search", "Pencarian"), systemImage: "magnifyingglass")
+                        }
+                        .disabled(model.isLoading || model.loadError != nil)
+                        NavigationLink {
+                            DataSafetyView(language: language, databaseManager: model.searchDatabaseManager()) {
+                                model.load()
+                            }
+                        } label: {
+                            Label(language.text("Backup and Restore", "Cadangan dan Pemulihan"), systemImage: "externaldrive")
                         }
                         .disabled(model.isLoading || model.loadError != nil)
                     } label: {
@@ -205,6 +277,31 @@ struct PlanListView: View {
         .sheet(isPresented: $model.isShowingObjectiveLibrary) {
             ObjectiveLibrarySheet(language: language, model: model)
         }
+        .fileImporter(isPresented: $model.isImportingPlanningJSON, allowedContentTypes: [.json]) { result in
+            model.preparePlanningImport(from: result)
+        }
+        .sheet(item: $model.importReview) { review in
+            PlanningImportReviewSheet(language: language, summary: review.summary) {
+                do {
+                    try model.confirmPlanningImport()
+                } catch {
+                    model.importOperationError = error.localizedDescription
+                }
+            } onCancel: {
+                model.importReview = nil
+            }
+        }
+        .alert(
+            language.text("Planning Import Failed", "Impor Perencanaan Gagal"),
+            isPresented: Binding(
+                get: { model.importOperationError != nil },
+                set: { if !$0 { model.importOperationError = nil } }
+            )
+        ) {
+            Button(language.text("OK", "OK"), role: .cancel) { model.importOperationError = nil }
+        } message: {
+            Text(model.importOperationError ?? "")
+        }
     }
 }
 
@@ -212,12 +309,14 @@ struct PlanListView: View {
 final class PlanDetailModel: ObservableObject {
     let plan: Plan
     private let repository: PlanningRepository
+    let evaluationRepository: EvaluationRepository
     @Published private(set) var activities: [Activity] = []
     @Published private(set) var activitiesAvailableToLink: [Activity] = []
     @Published private(set) var objectives: [Objective] = []
     @Published private(set) var objectivesAvailableToLink: [Objective] = []
     @Published private(set) var occurrences: [UUID: [ScheduleOccurrence]] = [:]
     @Published private(set) var executionRecords: [UUID: ExecutionRecord] = [:]
+    @Published private(set) var evaluations: [UUID: EvaluationVersion] = [:]
     @Published private(set) var isLoading = true
     @Published private(set) var loadError: String?
     @Published var isShowingActivitySheet = false
@@ -231,10 +330,12 @@ final class PlanDetailModel: ObservableObject {
     @Published var objectiveLinkError: String?
     @Published var linkError: String?
     @Published var executionSaveError: String?
+    @Published var evaluationTarget: EvaluationTarget?
 
     init(plan: Plan, databaseManager: DatabaseManager) {
         self.plan = plan
         repository = PlanningRepository(databaseQueue: databaseManager.databaseQueue)
+        evaluationRepository = EvaluationRepository(databaseQueue: databaseManager.databaseQueue)
     }
 
     func load() {
@@ -255,6 +356,13 @@ final class PlanDetailModel: ObservableObject {
                 }
             }
             executionRecords = recordsByOccurrence
+            var evaluationsByExecution: [UUID: EvaluationVersion] = [:]
+            for record in recordsByOccurrence.values {
+                if let evaluation = try evaluationRepository.latestEvaluation(executionRecordID: record.id) {
+                    evaluationsByExecution[record.id] = evaluation
+                }
+            }
+            evaluations = evaluationsByExecution
         } catch {
             loadError = error.localizedDescription
         }
@@ -397,6 +505,21 @@ private struct PlanDetailView: View {
                                                     Image(systemName: "checkmark.circle.fill")
                                                 }
                                                 .font(.caption)
+                                                if let evaluation = model.evaluations[record.id] {
+                                                    Label(
+                                                        "\(evaluation.rubric.title) · \(evaluation.rubric.classification) · \(evaluation.isComplete ? language.text("Complete", "Lengkap") : language.text("Incomplete", "Belum lengkap")) · v\(evaluation.versionNumber)",
+                                                        systemImage: evaluation.isComplete ? "checkmark.seal" : "exclamationmark.circle"
+                                                    )
+                                                    .font(.caption)
+                                                    .foregroundStyle(.secondary)
+                                                }
+                                                Button(language.text(
+                                                    model.evaluations[record.id] == nil ? "Evaluate" : "Review or Correct Evaluation",
+                                                    model.evaluations[record.id] == nil ? "Evaluasi" : "Tinjau atau Koreksi Evaluasi"
+                                                )) {
+                                                    model.evaluationTarget = EvaluationTarget(executionRecordID: record.id)
+                                                }
+                                                .font(.caption)
                                             } else {
                                                 HStack {
                                                     Text(language.text("No execution record", "Belum ada catatan pelaksanaan"))
@@ -474,6 +597,14 @@ private struct PlanDetailView: View {
         }
         .sheet(item: $model.activityToSchedule) { activity in
             ScheduleOccurrenceSheet(language: language, activity: activity, model: model)
+        }
+        .sheet(item: $model.evaluationTarget) { target in
+            EvaluationSheet(
+                language: language,
+                executionRecordID: target.executionRecordID,
+                repository: model.evaluationRepository,
+                onSaved: { model.load() }
+            )
         }
         .alert(
             language.text("Execution Record Could Not Be Saved", "Catatan Pelaksanaan Tidak Dapat Disimpan"),

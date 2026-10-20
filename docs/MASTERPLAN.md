@@ -1,6 +1,6 @@
 # Minority — masterplan
 
-Versi baseline 0.3 · diperbarui 20 Oktober 2026 · TASK-D-001, TASK-D-002, dan WF-01 diterima pengguna untuk scope terbatasnya. Cakupan Product MVP juga telah disetujui melalui DEC-025; implementasi dan kesiapan rilis masih berjalan/menunggu gerbang OPEN-008. Kesimpulan audit dokumentasi merupakan penilaian asisten.
+Versi baseline 0.3 · diperbarui 20 Oktober 2026 · TASK-D-001, TASK-D-002, dan WF-01 diterima pengguna untuk scope terbatasnya. Cakupan Product MVP disetujui melalui DEC-025. Seluruh kemampuan yang saat ini tercantum di roadmap D–J dan penguatan K kini diimplementasikan secara lokal menurut DEC-026; penerimaan akhir dan kesiapan rilis masih menunggu pemeriksaan pengguna serta gerbang OPEN-007/008. Kesimpulan audit dokumentasi merupakan penilaian asisten.
 
 Dokumen ini menyatukan arah proyek dari kode dan riwayat yang diberikan pengguna. Cakupan yang belum diputuskan tetap terbuka. Penulisan masterplan tidak merupakan persetujuan otomatis atas fitur, formula, atau seluruh rancangan domain.
 
@@ -64,8 +64,8 @@ Urutan berikut adalah rancangan berdasarkan dependensi, tanpa tenggat atau perse
 | G | Evaluasi | F, rubrik dan formula yang ditetapkan | Penilaian manual/otomatis dan penjelasannya dapat ditelusuri; data kurang dan sejarah koreksi terjaga — `REQ-EVA-001..005` |
 | H | Impor planning terstruktur | Skema domain yang akan diimpor stabil | JSON divalidasi, ditinjau pengguna, dan diimpor tanpa perubahan parsial — `REQ-IMP-001` |
 | I | Pengelolaan dokumen | Kebijakan berkas dan ekstraksi | Dokumen lokal dapat dikelola; ekstraksi serta OCR punya batas yang jelas — `REQ-DOC-001` |
-| J | Pencarian | I dan/atau domain yang hendak dicari | Pencarian terstruktur, teks penuh, dan semantik multilingual lokal; model dipilih setelah lisensi, ukuran, biaya sumber daya, dan relevansi diverifikasi — `REQ-SRC-001..002` |
-| K | Penguatan produk | Berlaku lintas tahap; gate rilis setelah fitur terpilih | Peningkatan skema, pemulihan data, responsivitas, dan distribusi terverifikasi — `REQ-REL-001..002` |
+| J | Pencarian | I dan/atau domain yang hendak dicari | Pencarian terstruktur, teks penuh, dan semantik multilingual lokal menggunakan baseline Apple NaturalLanguage DEC-032; relevansi, memori, dan waktu indeks/kueri masih dinilai — `REQ-SRC-001..002`, OPEN-007 |
+| K | Penguatan produk | Berlaku lintas tahap; gate rilis setelah fitur terpilih | Paket backup/restore dan upgrade skema tersedia; penilaian responsivitas, tata kelola backup, dan distribusi tetap gate — `REQ-REL-001..002`, OPEN-008 |
 
 Istilah lama **C2 = E**, **C3 = F**, dan **C4 = G**. **C1** tetap berarti model dan persistence dasar, sehingga kelulusannya tidak berarti seluruh Planning System atau UI selesai. F dapat berjalan tanpa E; urutan E/F dapat ditukar setelah prioritas pengguna jelas. H/I tidak wajib menunggu seluruh G. Perlindungan data berlaku sejak B, bukan baru pada K.
 
@@ -134,7 +134,7 @@ Langkah serta acuan requirement setiap alur disimpan sekali di [End-to-End User 
 
 ## Gerbang perlindungan data
 
-Sebelum Minority dipakai rutin untuk data pribadi yang penting, strategi backup, pemulihan, dan peningkatan database harus ditetapkan serta diuji sesuai `REQ-REL-001`. Tetapkan data yang dilindungi, cara membuat salinan konsisten, lokasi/akses salinan, dan langkah pemulihannya. Verifikasi restore dan upgrade dari database lama pada salinan atau fixture; jangan memakai data pribadi sebagai bahan percobaan.
+Minority sekarang membuat paket backup lokal dengan snapshot database konsisten, salinan dokumen, manifest migrasi, dan hash; restore memvalidasi isi, menyiapkan migrasi, dan menyimpan recovery backup sebelum mengganti data (DEC-033). Build, persistence checks, dan pemulihan UI diuji memakai fixture terisolasi. Paket tidak dienkripsi dan tidak mempunyai retensi otomatis. Sebelum penggunaan rutin dengan data penting, pengguna tetap perlu memilih lokasi tepercaya, menjaga salinan, dan memahami risiko paket plaintext; migrasi/restore tambahan dibuktikan pada fixture, bukan database pribadi.
 
 Gerbang ini berlaku untuk rilis awal dan tidak menunggu seluruh tahap K. Revisi G0 mendokumentasikan syarat tersebut; implementasi backup dan penetapan mekanismenya memerlukan tugas terpisah.
 
@@ -158,7 +158,9 @@ Hindari label “milestone selesai” tanpa cakupan. Gunakan kelima dimensi dala
 
 ## Batas implementasi saat ini
 
-TASK-D-002 diterima pengguna untuk slice membuat Activity, menghubungkannya ke Plan, dan menjadwalkan occurrence non-berulang. Technical Alpha WF-01 telah disetujui, diimplementasikan, diverifikasi, dan diterima pengguna untuk scope tersebut (DEC-022/023); penerimaan itu sendiri tidak menetapkan Product MVP. Cakupan Product MVP kemudian disetujui secara terpisah melalui DEC-025; implementasi dan penerimaannya masih berjalan, dan kesiapan rilis menunggu gerbang OPEN-008. Jangan membuat seluruh tabel rancangan lama atau memilih model embedding hanya karena tercantum dalam roadmap.
+TASK-D-002 diterima pengguna untuk slice membuat Activity, menghubungkannya ke Plan, dan menjadwalkan occurrence non-berulang. Technical Alpha WF-01 telah disetujui, diimplementasikan, diverifikasi, dan diterima pengguna untuk scope tersebut (DEC-022/023). Cakupan Product MVP disetujui secara terpisah melalui DEC-025. Seluruh kemampuan roadmap D–J dan K kini tersedia lokal di satu aplikasi sesuai DEC-026; penerimaan akhir tetap menunggu review manual pengguna. Gate OPEN-007/008 mempertahankan pengukuran kualitas pencarian, distribusi, pengelolaan backup plaintext, dan kinerja sebelum klaim kesiapan rilis.
+
+Pada 20 Oktober 2026, E–K tersedia secara lokal berdasarkan baseline implementasi RECORDED DEC-028..033. Pemeriksaan langsung mengonfirmasi keluaran cetak/PDF, evaluasi kualitatif, impor JSON, OCR PDF/gambar, pencarian teks serta semantik English–Indonesia, dan pemulihan backup pada data terisolasi. Skor/formula evaluasi tidak direka karena OPEN-004; OPEN-005..007 mempertahankan batas kebijakan dan target kualitas; OPEN-008 tetap menjadi gerbang distribusi, pengelolaan backup plaintext, dan kinerja dasar. Perubahan roadmap saat ini belum dipublikasikan, dan acceptance akhir pengguna tetap pending.
 
 Stack aktual adalah Swift, SwiftUI, Swift Package Manager, serta SQLite melalui GRDB. Build dan pengemasan native membutuhkan lingkungan macOS yang sesuai. Mesin sasaran MacBook Air M3 dengan RAM 8 GB tercatat di H1, tetapi spesifikasi mesin dan anggaran kinerja belum diverifikasi dalam sesi ini. Hindari menetapkan janji kinerja atau model AI berdasarkan asumsi tersebut.
 

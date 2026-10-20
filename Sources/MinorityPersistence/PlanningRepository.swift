@@ -252,6 +252,19 @@ public struct PlanningRepository {
         }
     }
 
+    public func activities() throws -> [Activity] {
+        try databaseQueue.read { db in
+            try Row.fetchAll(db, sql: "SELECT id, title, details FROM activities ORDER BY title, id")
+                .map { row in
+                    try Activity(
+                        id: decodedUUID(row["id"]),
+                        title: row["title"],
+                        details: row["details"]
+                    )
+                }
+        }
+    }
+
     public func activitiesNotLinked(toPlanID planID: UUID) throws -> [Activity] {
         try databaseQueue.read { db in
             try Row.fetchAll(

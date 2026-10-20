@@ -4,8 +4,7 @@ Minority is a native macOS personal life management application. It is built as 
 
 ## Project status
 
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 and TASK-D-002 were accepted for their limited scopes. Technical Alpha WF-01 adds reuse of an existing Activity across Plans without copying the Activity record; the complete flow passed isolated UI/offline verification and was accepted for that scope (DEC-023). The user approved the Product MVP scope in DEC-025: WF-01 plus one manual execution record per scheduled occurrence and a history view. The execution-record slice passed build, persistence, isolated UI/relaunch/save-error checks, temporary bundle validation, and a new offline UI check (EV-BLD-008 through EV-UI-009). Code is published as `334bf5761b48f30c5df4bbbb75e489d39b67a230`; Quality run 39368235871 completed successfully. Product MVP implementation acceptance and release readiness remain pending; OPEN-008 release gates still apply.
-Foundation A (native macOS bootstrap), Foundation B (SQLite persistence with GRDB), and Foundation C1 (core planning persistence) are published. TASK-D-001 and TASK-D-002 were accepted for their limited scopes. Technical Alpha WF-01 adds reuse of an existing Activity across Plans without copying the Activity record; the complete flow passed isolated UI/offline verification and was accepted for that scope (DEC-023). The user approved the Product MVP scope in DEC-025 and then authorized implementing all capabilities currently listed in roadmap D–J plus product hardening K before final manual review (DEC-026). The execution-record slice passed build, persistence, isolated UI/relaunch/save-error checks, temporary bundle validation, and a new offline UI check (EV-BLD-008 through EV-UI-009). Code is published as `334bf5761b48f30c5df4bbbb75e489d39b67a230`; Quality run 39368235871 completed successfully. The full roadmap implementation is in progress; user acceptance and release readiness remain pending, and OPEN-008 release gates still apply.
+Foundation A/B/C1, TASK-D-001, TASK-D-002, WF-01, TASK-D-003, and TASK-F-001 have published implementation checkpoints. By DEC-026, all currently planned capabilities D–J and product hardening K are implemented locally in the single Minority app. Current local checks cover build, persistence, import, document/OCR, multilingual semantic search, offline use, and backup/restore; final user acceptance and manual review remain pending. Search quality/resource budgets (OPEN-007) and release/distribution, backup handling, and basic performance gates (OPEN-008) remain open, so implementation completion is not a claim of release readiness. See [project progress](docs/PROGRESS.md) for evidence and current Git status.
 
 ## Development guide
 
@@ -93,12 +92,31 @@ For a scheduled occurrence, the user can explicitly record that it was completed
 - Structured JSON planning import
 - Objectives shared across Plans
 
-These broader capabilities are planned and are not part of the approved Technical Alpha WF-01 scope. Activity creation, Plan linking, explicit one-time scheduling, and Objective management are implemented in the local roadmap work; publication and the remaining stages are tracked in `docs/PROGRESS.md`.
+These capabilities are not part of the approved Technical Alpha WF-01 scope. Planning, Objective management, and the operational-command slice are implemented locally; later stages and publication status are tracked in `docs/PROGRESS.md`.
+
+### Planning JSON import format
+
+Import uses the versioned `minority.planning` JSON format. `format` and `version` are required; entity and relationship arrays may be omitted when unused. IDs are UUID strings. Unknown versions, invalid records, missing references, repeated IDs/links, and conflicting existing IDs block the whole import. Exact duplicates are skipped.
+
+```json
+{
+  "format": "minority.planning",
+  "version": 1,
+  "plans": [
+    {
+      "id": "9b3fa6d6-a8d4-4c39-8ee1-3f85f9d2f0aa",
+      "title": "Example Plan",
+      "startDate": "2026-10-20",
+      "endDate": "2026-10-31"
+    }
+  ]
+}
+```
 
 ## Current limitations
 
 - Activities can be linked to multiple Plans; schedules are explicit one-time occurrences. Recurrence and editing/deleting Plans, Activities, and occurrences remain unsupported.
 - Objectives can be shared across Plans, edited as one master record, unlinked per Plan, and deleted only when no Plan links remain.
-- The database has the original `foundation` migration plus additive `planning_v1`, `execution_v1`, and `objectives_v1` migrations. These implementation slices do not constitute acceptance of the complete domain/product design.
+- The database has the original `foundation` migration plus additive `planning_v1`, `execution_v1`, `objectives_v1`, and locally implemented `commands_v1` migrations. These implementation slices do not constitute acceptance of the complete domain/product design.
 - Persistence checks must be run through `MinorityPersistenceChecks`; `swift test` has no test target to run.
 - The packaged app is ad hoc signed and is not ready for public distribution or notarization.
