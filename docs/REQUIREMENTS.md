@@ -75,11 +75,11 @@ Status pelaksanaan, dimensi completion/timeliness/quality, skala kualitas 0–10
 | REQ-REL-001 | Peningkatan dan pemulihan data aman | Sebelum penggunaan rutin dengan data pribadi penting, strategi backup/restore dan upgrade ditetapkan serta diuji; cakupan data dan akses salinan dijelaskan; pemulihan salinan dan peningkatan database lama dibuktikan tanpa reset diam-diam; kegagalan dan penghapusan menjaga data serta referensi sejarah; mekanisme backup masih OPEN-008 | K1/H1, diperjelas A1 P1-02; RECORDED |
 | REQ-REL-002 | Kesiapan penggunaan dinilai terpisah dari build | Alur UI yang dirilis diperiksa; kinerja UI dasar, startup, dan operasi database dasar dinilai terhadap beban serta kriteria tersendiri yang masih OPEN-008; operasi berat tidak membekukan UI pada beban sasaran; benchmark pencarian semantik mengikuti REQ-SRC-002/OPEN-007 dan tidak menggantikan pemeriksaan kinerja dasar; bundle dan signing/distribusi diuji sesuai cara distribusinya; target numerik belum ditetapkan | H1 dan usulan gate rilis, diperjelas A2; PROPOSED |
 
-Kriteria untuk H–K di atas adalah batas penyusunan spesifikasi dan penerimaan. Kriteria tersebut belum merupakan izin implementasi atau klaim tersedianya fitur.
+Pengguna mengotorisasi implementasi seluruh kemampuan yang tercantum dalam roadmap melalui DEC-026. Kriteria H–K tetap perlu dirinci untuk kasus yang masih OPEN sebelum implementasi yang bergantung padanya; status RECORDED/PROPOSED bukan bukti fitur sudah dibuat atau diterima. Tidak ada klaim ketersediaan tanpa bukti implementasi dan verifikasi.
 
 ## End-to-End User Workflows
 
-Peta konseptual berikut menghubungkan hasil pengguna dengan requirement yang sama di atas. Cakupan MVP yang disetujui melalui DEC-025 memakai WF-01 ditambah pencatatan manual terbatas dari WF-03. Status requirement RECORDED/PROPOSED/OPEN tetap seperti sumbernya; persetujuan alur MVP tidak mengonfirmasi keseluruhan requirement atau mengizinkan semua enam alur konseptual.
+Peta konseptual berikut menghubungkan hasil pengguna dengan requirement yang sama di atas. Cakupan MVP yang disetujui melalui DEC-025 memakai WF-01 ditambah pencatatan manual terbatas dari WF-03. Secara terpisah, pengguna mengotorisasi implementasi keenam workflow dalam roadmap sebelum pemeriksaan manual akhir melalui DEC-026. Status requirement RECORDED/PROPOSED/OPEN tetap seperti sumbernya; otorisasi implementasi tidak berarti semua detail telah diputuskan atau hasilnya diterima.
 
 | ID | Langkah konseptual dan hasil pengguna | Requirement acuan |
 | --- | --- | --- |

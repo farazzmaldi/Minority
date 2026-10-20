@@ -38,6 +38,7 @@ Kebutuhan tidak disalin menjadi spesifikasi berbeda di setiap dokumen. Roadmap m
 - **U9 — Penerimaan WF-01, 20 Oktober 2026:** setelah meminta verifikasi ulang bukti, pengguna menginstruksikan agar penerimaan dicatat untuk WF-01 saja. Dicatat sebagai `DEC-023`; penerimaan historis ini tidak menyatakan Technical Alpha siap rilis atau seluruh `REQ-PLN-004` selesai. Persetujuan scope MVP datang kemudian melalui U11/DEC-025.
 - **U10 — Mandat otonomi penyelesaian produk, 20 Oktober 2026:** pengguna meminta pekerjaan diteruskan secara lokal sampai produk yang ditentukan requirement dan roadmap yang disetujui selesai, dengan disiplin pencatatan progres. Ini mengizinkan pilihan implementasi rutin yang aman, tetapi tidak mengubah requirement berstatus `OPEN`/`PROPOSED` atau melewati gate keamanan data dan keputusan produk yang belum disetujui.
 - **U11 — Persetujuan cakupan Product MVP, 20 Oktober 2026:** setelah menerima usulan cakupan yang merinci WF-01 ditambah pencatatan manual satu pelaksanaan per occurrence dan tampilan riwayatnya, pengguna menjawab “setuju usulan MVP”. Persetujuan ini mengunci cakupan MVP yang tercantum di bagian Strategi Rilis; tidak menyatakan fitur sudah selesai/diterima atau siap dirilis, tidak menaikkan status seluruh `REQ-PLN-004` maupun `REQ-EXE-001..002`, dan tidak menutup gate OPEN-008.
+- **U12 — Otorisasi penyelesaian seluruh roadmap sebelum pemeriksaan manual, 20 Oktober 2026:** pengguna meminta seluruh fungsi yang tercantum di plan sudah tersedia sebelum ia memeriksa aplikasi secara manual. Dicatat sebagai `DEC-026`. Ini memperluas target implementasi melewati Product MVP yang disetujui; tidak mengubah requirement source/status, tidak memberi izin menambah fitur di luar plan, dan tidak menghapus gate keamanan data atau rilis.
 - **K1 — Repository dan checkpoint:** dasar dokumentasi awal `3c668f25e39854ec8d6ba544453e2fa7e6bd74cd`; C1 dipublikasikan sebagai `7e268be9b3230675fccc34ff06e038f6651c149f`; TASK-D-002 dipublikasikan sebagai `dc8ea7dfe4bfe086e69b09a0ce6239f89b9573a4` dan remote `main` diverifikasi menunjuk SHA tersebut pada 20 Oktober 2026. Status publikasi governance dan CI dicatat di `PROGRESS.md`.
 - **H1 — Riwayat lampiran:** percakapan tentang Foundation A/B/C1, hybrid Perintah Induk, empat keputusan domain, tiga penyesuaian, dan usulan roadmap. Disampaikan kembali pada 19 Oktober 2026. Teks mengandung laporan serta pernyataan persetujuan asisten; pernyataan tersebut bukan bukti persetujuan langsung pengguna.
 - **V1 — Pemeriksaan G0 awal:** build dan executable persistence dijalankan pada kode lokal sebelum audit. Rinciannya dicatat di `PROGRESS.md`; revisi dokumentasi ini tidak mengulang build aplikasi.
@@ -63,7 +64,7 @@ Urutan berikut adalah rancangan berdasarkan dependensi, tanpa tenggat atau perse
 | G | Evaluasi | F, rubrik dan formula yang ditetapkan | Penilaian manual/otomatis dan penjelasannya dapat ditelusuri; data kurang dan sejarah koreksi terjaga — `REQ-EVA-001..005` |
 | H | Impor planning terstruktur | Skema domain yang akan diimpor stabil | JSON divalidasi, ditinjau pengguna, dan diimpor tanpa perubahan parsial — `REQ-IMP-001` |
 | I | Pengelolaan dokumen | Kebijakan berkas dan ekstraksi | Dokumen lokal dapat dikelola; ekstraksi serta OCR punya batas yang jelas — `REQ-DOC-001` |
-| J | Pencarian | I dan/atau domain yang hendak dicari | Pencarian terstruktur; FTS dan semantik hanya setelah kebutuhan serta biaya sumber daya ditetapkan — `REQ-SRC-001..002` |
+| J | Pencarian | I dan/atau domain yang hendak dicari | Pencarian terstruktur, teks penuh, dan semantik multilingual lokal; model dipilih setelah lisensi, ukuran, biaya sumber daya, dan relevansi diverifikasi — `REQ-SRC-001..002` |
 | K | Penguatan produk | Berlaku lintas tahap; gate rilis setelah fitur terpilih | Peningkatan skema, pemulihan data, responsivitas, dan distribusi terverifikasi — `REQ-REL-001..002` |
 
 Istilah lama **C2 = E**, **C3 = F**, dan **C4 = G**. **C1** tetap berarti model dan persistence dasar, sehingga kelulusannya tidak berarti seluruh Planning System atau UI selesai. F dapat berjalan tanpa E; urutan E/F dapat ditukar setelah prioritas pengguna jelas. H/I tidak wajib menunggu seluruh G. Perlindungan data berlaku sejak B, bukan baru pada K.
@@ -101,7 +102,7 @@ Persetujuan ini adalah persetujuan **cakupan**, bukan penerimaan implementasi at
 
 ### Extended Releases — pemilihan melalui roadmap
 
-Extended Releases memuat kemampuan tambahan yang dipilih melalui roadmap dan persetujuan cakupan terkait. Objective, planning lanjutan, perintah/ekspor, evaluasi, impor JSON, dokumen/OCR, serta pencarian dikecualikan dari Product MVP yang disetujui. Prioritas dan urutannya dalam Extended Releases belum dipilih; seluruh fitur roadmap tidak otomatis wajib pada rilis pertama.
+Objective, planning lanjutan, Perintah Induk/Harian, evaluasi, impor JSON, dokumen/OCR, dan pencarian tetap dikecualikan dari Product MVP yang disetujui DEC-025. Namun, atas otorisasi pengguna U12/DEC-026, semua kemampuan yang sudah tercantum dalam roadmap D–J serta penguatan K kini termasuk target implementasi sebelum pemeriksaan manual akhir. Urutkan berdasarkan dependensi dan risiko; jangan menambah fitur di luar plan. Persetujuan target implementasi tidak mengubah status requirement, menyatakan hasil diterima, atau mengizinkan distribusi publik.
 
 ### Release Acceptance Criteria — usulan gerbang penerimaan
 
@@ -112,11 +113,11 @@ Extended Releases memuat kemampuan tambahan yang dipilih melalui roadmap dan per
 - Build serta pemeriksaan persistence lulus pada versi yang akan dirilis; hasil UI, packaging/signing yang relevan, dan hasil GitHub Actions dicatat terpisah. CI disebut lulus setelah ada run berhasil yang menunjuk commit terkait.
 - Pengguna menerima hasil dan keterbatasan rilis. Versi sumber diidentifikasi dengan commit, status publikasi, dan bukti pemeriksaan; tidak ada klaim selesai berdasarkan daftar file saja.
 
-Keputusan yang masih terbuka: pembagian Extended Releases, kebijakan koreksi/hapus catatan pelaksanaan, navigasi di luar TASK-D-001/WF-01, kriteria kinerja dasar, mekanisme backup/restore, cara distribusi, serta tenggat. Product MVP disetujui sebagai cakupan melalui DEC-025; implementasi, verifikasi, penerimaan, dan kesiapan rilisnya dilacak terpisah. Detail terkait merujuk OPEN-001/004/008 dalam `DECISIONS.md`.
+Keputusan detail yang masih terbuka mencakup kebijakan koreksi/hapus, klasifikasi/rubrik/formula evaluasi, format dan penerbitan dokumen perintah, skema impor, pengelolaan berkas/OCR, model dan kinerja pencarian, navigasi, backup/restore, distribusi, serta tenggat. U12/DEC-026 mengizinkan penyelesaian semua kemampuan roadmap yang sudah tercatat; detail dipilih dengan pendekatan lokal, aman, dan dapat ditelusuri sesuai requirement, lalu dicatat sebelum implementasi yang bergantung padanya. Product MVP tetap sub-cakupan tersendiri; penerimaan fitur dan kesiapan rilis tetap dilacak terpisah. Rujuk OPEN-001..008 dalam `DECISIONS.md`.
 
 ## Peta alur produk
 
-Langkah serta acuan requirement setiap alur disimpan sekali di [End-to-End User Workflows](REQUIREMENTS.md#end-to-end-user-workflows). Peta ini tidak merupakan izin implementasi seluruh alur.
+Langkah serta acuan requirement setiap alur disimpan sekali di [End-to-End User Workflows](REQUIREMENTS.md#end-to-end-user-workflows). Implementasi seluruh alur yang tercantum kini diotorisasi secara eksplisit melalui U12/DEC-026; tiap alur tetap harus memenuhi requirement, batas data, dan pemeriksaan yang relevan.
 
 | Alur | Hasil pengguna dan acuan |
 | --- | --- |
